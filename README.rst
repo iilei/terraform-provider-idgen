@@ -83,7 +83,7 @@ Templated IDs with Parametrization
 Alphabet Presets
 ----------------
 
-Both NanoID and Proquint support configurable alphabets. You can either use **named presets** for convenience or provide a **custom string** of allowed characters.
+NanoID supports configurable alphabets. You can either use **named presets** for convenience or provide a **custom string** of allowed characters.
 
 .. list-table::
    :header-rows: 1
