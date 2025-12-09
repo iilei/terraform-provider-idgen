@@ -1,17 +1,6 @@
 # .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/terraform-docs/terraform-docs
-    rev: "034748682e8ff2d8f65361b5176e8bb957df98f1"  # frozen: v0.20.0
-    hooks:
-      - id: terraform-docs-go
-        name: Update Terraform Provider Docs
-        args:
-          - markdown
-          - table
-          - --output-file
-          - README.md
-          - ./terraform-provider-idgen
-        pass_filenames: false
+
 
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 11ea70506fd878d26129b2b87746fd1a1f6b561b  # frozen: 3.6.0
@@ -58,3 +47,10 @@ repos:
         language: system
         types: [go]
         pass_filenames: false
+
+      - id: tfplugindocs
+        name: terraform-plugin-docs generate
+        entry: bash -c '$(go env GOBIN)/tfplugindocs generate --provider-name idgen'
+        language: system
+        pass_filenames: false
+        files: '(internal/provider/.*\.go|examples/.*|templates/.*)'
