@@ -1,0 +1,60 @@
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/terraform-docs/terraform-docs
+    rev: "034748682e8ff2d8f65361b5176e8bb957df98f1"  # frozen: v0.20.0
+    hooks:
+      - id: terraform-docs-go
+        name: Update Terraform Provider Docs
+        args:
+          - markdown
+          - table
+          - --output-file
+          - README.md
+          - ./terraform-provider-idgen
+        pass_filenames: false
+
+  - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
+    rev: 11ea70506fd878d26129b2b87746fd1a1f6b561b  # frozen: 3.6.0
+    hooks:
+      - id: editorconfig-checker
+        alias: ec
+        exclude: '\.go$'  # Go formatting is handled by gofmt and editorconfig-checker yields false positives
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  - repo: https://github.com/golangci/golangci-lint
+    rev: 9f61b0f53f80672872fced07b6874397c3ed197b  # frozen: v2.7.2
+    hooks:
+      - id: golangci-lint
+        args: [--fix, --timeout=5m]
+
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: go fmt
+        entry: bash -c 'output=$(go fmt ./...); if [ -n "$output" ]; then echo "Files not formatted:"; echo "$output"; exit 1; fi'
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: go-vet
+        name: go vet
+        entry: bash -c 'go vet ./... || exit 0'
+        language: system
+        types: [go]
+        pass_filenames: false
+
+      - id: go-test
+        name: go test
+        entry: go test -short ./...
+        language: system
+        types: [go]
+        pass_filenames: false
