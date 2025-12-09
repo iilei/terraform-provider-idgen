@@ -26,7 +26,7 @@ type NanoIDDataSourceModel struct {
 	Length    types.Int64  `tfsdk:"length"`
 	Alphabet  types.String `tfsdk:"alphabet"`
 	GroupSize types.Int64  `tfsdk:"group_size"`
-	Seed      types.Int64  `tfsdk:"seed"`
+	Seed      types.String `tfsdk:"seed"`
 }
 
 func (d *NanoIDDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -56,9 +56,12 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "Number of characters per group, separated by dashes. If not set, no grouping is applied.",
 				Optional:    true,
 			},
-			"seed": schema.Int64Attribute{
-				Description: "Optional seed for deterministic ID generation. When provided, the same seed will " +
-					"always produce the same ID. WARNING: Seeded IDs are predictable and should not be used for security.",
+			"seed": schema.StringAttribute{
+				MarkdownDescription: "Optional seed for deterministic ID generation. Behavior:\n\n" +
+					"- **Integer** - parsed and used as random seed\n" +
+					"- **Text string** - hashed deterministically and used as random seed\n" +
+					"- **Omitted** - cryptographically random (different each apply)\n\n" +
+					"**WARNING:** Seeded IDs are deterministic and should not be used for security tokens or secrets.",
 				Optional: true,
 			},
 		},
@@ -85,6 +88,11 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		length = int(data.Length.ValueInt64())
 	}
 
+	// Validate length
+	if !validateLength(int64(length), &resp.Diagnostics) {
+		return
+	}
+
 	alphabet := idgen.Alphanumeric
 	if !data.Alphabet.IsNull() {
 		alphabetStr := data.Alphabet.ValueString()
@@ -104,7 +112,7 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	// Check if seed is provided
 	var seed *int64
 	if !data.Seed.IsNull() {
-		seedVal := data.Seed.ValueInt64()
+		seedVal, _ := stringToSeed(data.Seed.ValueString())
 		seed = &seedVal
 	}
 

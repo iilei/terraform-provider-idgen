@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -25,7 +26,7 @@ type ProquintDataSourceModel struct {
 	ID        types.String `tfsdk:"id"`
 	Length    types.Int64  `tfsdk:"length"`
 	GroupSize types.Int64  `tfsdk:"group_size"`
-	Seed      types.Int64  `tfsdk:"seed"`
+	Seed      types.String `tfsdk:"seed"`
 }
 
 func (d *ProquintDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -34,7 +35,9 @@ func (d *ProquintDataSource) Metadata(ctx context.Context, req datasource.Metada
 
 func (d *ProquintDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: "Generates a Proquint identifier.\n\n" +
+		MarkdownDescription: "Generates a random Proquint identifier with configurable length.\n\n" +
+			"This data source generates proquint-formatted IDs with random content. " +
+			"For canonical encoding of IPv4 addresses or uint32 integers, use `idgen_proquint_canonical` instead.\n\n" +
 			"**Security Notice:** When using `seed`, IDs become deterministic and predictable. " +
 			"Never use seeded IDs for security tokens, passwords, or cryptographic purposes.",
 		Attributes: map[string]schema.Attribute{
@@ -43,16 +46,21 @@ func (d *ProquintDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 				Computed:    true,
 			},
 			"length": schema.Int64Attribute{
-				Description: "The length of the generated ID in characters. Defaults to 11 (2 proquint words).",
-				Optional:    true,
+				MarkdownDescription: "The length of the generated ID in characters.\n\n" +
+					"Common values: `11` (2 words, e.g., `lusab-babad`), `17` (3 words), `23` (4 words).",
+				Required: true,
 			},
 			"group_size": schema.Int64Attribute{
 				Description: "Number of characters per group, separated by dashes. If not set, no grouping is applied.",
 				Optional:    true,
 			},
-			"seed": schema.Int64Attribute{
-				Description: "Optional seed for deterministic ID generation. When provided, the same seed will " +
-					"always produce the same ID. WARNING: Seeded IDs are predictable and should not be used for security.",
+			"seed": schema.StringAttribute{
+				MarkdownDescription: "Optional seed for deterministic random generation. Accepts any string value:\n\n" +
+					"- **Text string** (e.g., `my-app-seed-42`) - hashed deterministically and used as random seed\n" +
+					"- **Integer string** (e.g., `12345`) - parsed and used as random seed\n" +
+					"- **Omitted** - uses cryptographically secure random generation (different each apply)\n\n" +
+					"**Note:** For canonical encoding of IPv4 addresses or uint32/uint64 integers, use `idgen_proquint_canonical` instead.\n\n" +
+					"**WARNING:** Seeded IDs are deterministic and should not be used for security tokens or secrets.",
 				Optional: true,
 			},
 		},
@@ -73,12 +81,12 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	// Set defaults
-	// Default length is 11 characters (2 words: "lusab-babad")
-	// Each proquint word is 5 chars, plus 1 separator = 11 chars for 2 words
-	length := int64(11)
-	if !data.Length.IsNull() {
-		length = data.Length.ValueInt64()
+	// Length is now required (no default)
+	length := data.Length.ValueInt64()
+
+	// Validate length
+	if !validateLength(length, &resp.Diagnostics) {
+		return
 	}
 
 	// Convert character length to byte length
@@ -91,13 +99,41 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	// Check if seed is provided
 	var seed *int64
+	var directEncode bool
 	if !data.Seed.IsNull() {
-		seedVal := data.Seed.ValueInt64()
+		seedVal, shouldDirectEncode := stringToSeed(data.Seed.ValueString())
 		seed = &seedVal
+		directEncode = shouldDirectEncode
+
+		// Warn if using direct encoding with non-canonical length
+		if shouldDirectEncode {
+			// Determine what the canonical length would be
+			canonicalLength := int64(11) // default for uint32
+			if seedVal > 0xFFFFFFFF {
+				canonicalLength = 23 // uint64 range
+			}
+
+			if length != canonicalLength {
+				resp.Diagnostics.AddWarning(
+					"Non-Canonical Length for Direct Encoding",
+					fmt.Sprintf(
+						"The seed value '%s' will be canonically encoded to %d characters, but length=%d was requested. "+
+							"The output will be %s to match your requested length. "+
+							"Consider using idgen_proquint_canonical for canonical encoding without specifying length, "+
+							"or adjust length to %d for the standard canonical output.",
+						data.Seed.ValueString(),
+						canonicalLength,
+						length,
+						map[bool]string{true: "truncated", false: "zero-padded"}[length < canonicalLength],
+						canonicalLength,
+					),
+				)
+			}
+		}
 	}
 
 	// Generate the Proquint
-	id, err := idgen.GenerateProquint(byteLength, seed)
+	id, err := idgen.GenerateProquint(byteLength, seed, directEncode)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Failed to generate Proquint",

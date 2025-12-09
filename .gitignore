@@ -37,3 +37,6 @@ coverage.*
 **/*/.terraform
 **/*/.terraform.lock.hcl
 */**/*.tfstate
+
+# helper files
+get-test-expectations.sh

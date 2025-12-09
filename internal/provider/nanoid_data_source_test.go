@@ -57,7 +57,7 @@ const testAccNanoIDDataSourceConfigSeeded = `
 data "idgen_nanoid" "test" {
   length   = 12
   alphabet = "numeric"
-  seed     = 42
+  seed     = "42"
 }
 `
 

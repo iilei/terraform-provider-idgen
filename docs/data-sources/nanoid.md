@@ -23,7 +23,13 @@ Generates a NanoID identifier.
 - `alphabet` (String) The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), 'readable' (excludes confusing chars like 0/O, 1/l/I), or a custom string of characters.
 - `group_size` (Number) Number of characters per group, separated by dashes. If not set, no grouping is applied.
 - `length` (Number) The length of the generated ID. Defaults to 21.
-- `seed` (Number) Optional seed for deterministic ID generation. When provided, the same seed will always produce the same ID. WARNING: Seeded IDs are predictable and should not be used for security.
+- `seed` (String) Optional seed for deterministic ID generation. Behavior:
+
+- **Integer** - parsed and used as random seed
+- **Text string** - hashed deterministically and used as random seed
+- **Omitted** - cryptographically random (different each apply)
+
+**WARNING:** Seeded IDs are deterministic and should not be used for security tokens or secrets.
 
 ### Read-Only
 
