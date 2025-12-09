@@ -108,8 +108,7 @@ Notes
 - The ``idgen_templated`` data source allows **parametrized combination** of multiple base IDs, with optional inline transformations (``upper``, ``lower``, etc.)
 - Terraform-native string interpolation can still be used for additional customization if needed.
 
-<!-- internal notes:
-named alphabet presets for nanoid and proquint:
-https://github.com/matoous/go-nanoid/blob/main/gonanoid.go#L9-L39
-
- -->
+..
+   internal notes:
+   named alphabet presets for nanoid and proquint:
+   https://github.com/matoous/go-nanoid/blob/main/gonanoid.go#L9-L39
