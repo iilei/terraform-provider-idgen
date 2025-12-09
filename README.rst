@@ -19,7 +19,7 @@ These IDs are read-only utilities for use within Terraform configurations, makin
 Key Features
 ------------
 
-- **Proquint and NanoID generation**
+- **[Proquint](https://arxiv.org/html/0901.4016) and [NanoID](https://github.com/ai/nanoid) generation**
 - **Configurable entropy** for predictable or high-randomness IDs
 - **Templating support** to embed IDs into structured naming conventions
 - **Deterministic seeding** for reproducible environments or test setups
