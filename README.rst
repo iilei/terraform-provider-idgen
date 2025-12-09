@@ -44,7 +44,6 @@ Basic ID Generation
    data "idgen_proquint" "example" {
      length     = 12
      group_size = 4
-     alphabet   = "standard" # preset for Proquint
    }
 
    output "my_ids" {
@@ -74,7 +73,6 @@ Templated IDs with Parametrization
        length = 9
        seed   = 42
        group_size = 3
-       alphabet = "standard"
      }
    }
 
