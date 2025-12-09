@@ -25,6 +25,13 @@ func TestAccProquintDataSource(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.idgen_proquint.test", "id"),
 				),
 			},
+			// Test with group_size
+			{
+				Config: testAccProquintDataSourceConfigGrouped,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_proquint.test", "id"),
+				),
+			},
 		},
 	})
 }
@@ -37,5 +44,12 @@ const testAccProquintDataSourceConfigSeeded = `
 data "idgen_proquint" "test" {
   length = 17
   seed   = 42
+}
+`
+
+const testAccProquintDataSourceConfigGrouped = `
+data "idgen_proquint" "test" {
+  length     = 17
+  group_size = 5
 }
 `

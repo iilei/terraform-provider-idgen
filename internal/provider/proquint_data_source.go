@@ -22,9 +22,10 @@ type ProquintDataSource struct{}
 
 // ProquintDataSourceModel describes the data source data model.
 type ProquintDataSourceModel struct {
-	ID     types.String `tfsdk:"id"`
-	Length types.Int64  `tfsdk:"length"`
-	Seed   types.Int64  `tfsdk:"seed"`
+	ID        types.String `tfsdk:"id"`
+	Length    types.Int64  `tfsdk:"length"`
+	GroupSize types.Int64  `tfsdk:"group_size"`
+	Seed      types.Int64  `tfsdk:"seed"`
 }
 
 func (d *ProquintDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -43,6 +44,10 @@ func (d *ProquintDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			},
 			"length": schema.Int64Attribute{
 				Description: "The length of the generated ID in characters. Defaults to 11 (2 proquint words).",
+				Optional:    true,
+			},
+			"group_size": schema.Int64Attribute{
+				Description: "Number of characters per group, separated by dashes. If not set, no grouping is applied.",
 				Optional:    true,
 			},
 			"seed": schema.Int64Attribute{
@@ -99,6 +104,14 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 			"Could not generate Proquint: "+err.Error(),
 		)
 		return
+	}
+
+	// Apply grouping if group_size is specified
+	if !data.GroupSize.IsNull() {
+		groupSize := int(data.GroupSize.ValueInt64())
+		if groupSize > 0 {
+			id = applyGrouping(id, groupSize)
+		}
 	}
 
 	data.ID = types.StringValue(id)

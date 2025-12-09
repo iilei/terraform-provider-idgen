@@ -22,10 +22,11 @@ type NanoIDDataSource struct{}
 
 // NanoIDDataSourceModel describes the data source data model.
 type NanoIDDataSourceModel struct {
-	ID       types.String `tfsdk:"id"`
-	Length   types.Int64  `tfsdk:"length"`
-	Alphabet types.String `tfsdk:"alphabet"`
-	Seed     types.Int64  `tfsdk:"seed"`
+	ID        types.String `tfsdk:"id"`
+	Length    types.Int64  `tfsdk:"length"`
+	Alphabet  types.String `tfsdk:"alphabet"`
+	GroupSize types.Int64  `tfsdk:"group_size"`
+	Seed      types.Int64  `tfsdk:"seed"`
 }
 
 func (d *NanoIDDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -50,6 +51,10 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 				Description: "The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), " +
 					"'readable' (excludes confusing chars like 0/O, 1/l/I), or a custom string of characters.",
 				Optional: true,
+			},
+			"group_size": schema.Int64Attribute{
+				Description: "Number of characters per group, separated by dashes. If not set, no grouping is applied.",
+				Optional:    true,
 			},
 			"seed": schema.Int64Attribute{
 				Description: "Optional seed for deterministic ID generation. When provided, the same seed will " +
@@ -111,6 +116,14 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			"Could not generate NanoID: "+err.Error(),
 		)
 		return
+	}
+
+	// Apply grouping if group_size is specified
+	if !data.GroupSize.IsNull() {
+		groupSize := int(data.GroupSize.ValueInt64())
+		if groupSize > 0 {
+			id = applyGrouping(id, groupSize)
+		}
 	}
 
 	data.ID = types.StringValue(id)

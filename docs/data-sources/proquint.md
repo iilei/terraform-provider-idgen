@@ -20,6 +20,7 @@ Generates a Proquint identifier.
 
 ### Optional
 
+- `group_size` (Number) Number of characters per group, separated by dashes. If not set, no grouping is applied.
 - `length` (Number) The length of the generated ID in characters. Defaults to 11 (2 proquint words).
 - `seed` (Number) Optional seed for deterministic ID generation. When provided, the same seed will always produce the same ID. WARNING: Seeded IDs are predictable and should not be used for security.
 

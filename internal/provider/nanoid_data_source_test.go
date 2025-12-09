@@ -32,6 +32,13 @@ func TestAccNanoIDDataSource(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
 				),
 			},
+			// Test with group_size
+			{
+				Config: testAccNanoIDDataSourceConfigGrouped,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
+				),
+			},
 		},
 	})
 }
@@ -51,5 +58,13 @@ data "idgen_nanoid" "test" {
   length   = 12
   alphabet = "numeric"
   seed     = 42
+}
+`
+
+const testAccNanoIDDataSourceConfigGrouped = `
+data "idgen_nanoid" "test" {
+  length     = 12
+  group_size = 4
+  alphabet   = "alphanumeric"
 }
 `
