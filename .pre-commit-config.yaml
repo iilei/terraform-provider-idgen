@@ -1,7 +1,5 @@
-# .pre-commit-config.yaml
+
 repos:
-
-
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
     rev: 11ea70506fd878d26129b2b87746fd1a1f6b561b  # frozen: 3.6.0
     hooks:
@@ -13,7 +11,9 @@ repos:
     rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: '^(internal/provider/.*_docs\.md)|docs/.*$'
       - id: end-of-file-fixer
+        exclude: '^(internal/provider/.*_docs\.md)|docs/.*$'
       - id: check-yaml
       - id: check-added-large-files
       - id: mixed-line-ending
