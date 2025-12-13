@@ -53,6 +53,7 @@ func (p *IdgenProvider) DataSources(ctx context.Context) []func() datasource.Dat
 		NewNanoIDDataSource,
 		NewProquintDataSource,
 		NewProquintCanonicalDataSource,
+		NewRandomWordDataSource,
 		NewTemplatedDataSource,
 	}
 }

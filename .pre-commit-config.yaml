@@ -54,3 +54,17 @@ repos:
         language: system
         pass_filenames: false
         files: '(internal/provider/.*\.go|examples/.*|templates/.*)'
+
+      - id: search-and-replace
+        language: system
+        name: search and replace
+        entry: bash -c 'for x in "$@"; do echo "Processing $x"; sed -i -E "/^\S{5}$/!d"  "$x"; done' --
+        files: internal/data/.*words.txt$
+        pass_filenames: true
+
+  -   repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+      hooks:
+        - id: file-contents-sorter
+          files: internal/data/.*\.txt$
+          args: ['--unique']
