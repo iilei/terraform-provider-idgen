@@ -85,6 +85,38 @@ The `Proquint specification <https://arxiv.org/html/0901.4016#_conclusion_and_sp
      value = data.idgen_templated.example.id
    }
 
+Random Word Generation
+~~~~~~~~~~~~~~~~~~~~~~
+
+Generate human-friendly identifiers using random words from a curated five-letter word list:
+
+.. code-block:: hcl
+
+   # Generate a random word (changes on each apply)
+   data "idgen_random_word" "random" {}
+
+   # Generate a deterministic word using a seed
+   data "idgen_random_word" "deterministic" {
+     seed = "some-seed"  # Always produces the same word
+   }
+
+   # Use a custom word list
+   data "idgen_random_word" "custom" {
+     seed     = "5"  # Produces "red" from the custom list
+     wordlist = "red,blue,green,yellow,purple"
+   }
+
+   output "identifiers" {
+     value = {
+       random       = data.idgen_random_word.random.id
+       deterministic = data.idgen_random_word.deterministic.id
+       custom       = data.idgen_random_word.custom.id
+     }
+   }
+
+.. note::
+   Sequential numeric seeds (``"0"``, ``"1"``, ``"2"``) produce words in alphabetical order. For varied distribution, use non-numeric seeds (``"project-1"``, ``"env-prod"``) which are hashed for randomized selection.
+
 Alphabet Presets
 ----------------
 
