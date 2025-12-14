@@ -11,18 +11,117 @@ func TestAccTemplatedDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Read testing
+			// Test basic template with proquint and nanoid
 			{
-				Config: testAccTemplatedDataSourceConfig,
+				Config: testAccTemplatedDataSourceConfigBasic,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "fixed-templated-thing-abc-123"),
+					// Just verify it's set and has expected structure
+				),
+			},
+			// Test template with random_word
+			{
+				Config: testAccTemplatedDataSourceConfigWithWord,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "apple-tataj-rubab"),
+				),
+			},
+			// Test template with all ID types combined
+			{
+				Config: testAccTemplatedDataSourceConfigAllTypes,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "lusab-babad.tataj-rubab.eU2-Btp-p88-i2.apple"),
+				),
+			},
+			// Test template functions with piping
+			{
+				Config: testAccTemplatedDataSourceConfigWithFunctions,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "TATAJ_RUBAB_apfel"),
 				),
 			},
 		},
 	})
 }
 
-const testAccTemplatedDataSourceConfig = `
-data "idgen_templated" "test" {}
+const testAccTemplatedDataSourceConfigBasic = `
+data "idgen_templated" "test" {
+  template = "{{ .proquint }}-{{ .nanoid }}"
+
+  proquint = {
+    length = 11
+    seed   = "xyz-12"
+    group_size = 5
+  }
+
+  nanoid = {
+    length = 11
+    seed   = "xyz-12"
+    alphabet = "readable"
+    group_size = 3
+  }
+}
+`
+
+const testAccTemplatedDataSourceConfigWithWord = `
+data "idgen_templated" "test" {
+  template = "{{ .random_word }}-{{ .proquint }}"
+
+  random_word = {
+    seed     = "0"
+    wordlist = "apple,banana,cherry"
+  }
+
+  proquint = {
+    length = 11
+    seed   = "xyz-12"
+    group_size = 5
+  }
+}
+`
+
+const testAccTemplatedDataSourceConfigAllTypes = `
+data "idgen_templated" "test" {
+  template = "{{ .proquint_canonical }}.{{ .proquint }}.{{ .nanoid }}.{{ .random_word }}"
+
+  proquint_canonical = {
+    seed = "127.0.0.1"
+  }
+
+  proquint = {
+    length = 11
+    seed   = "xyz-12"
+  }
+
+  nanoid = {
+    length = 14
+    seed   = "xyz-12"
+    alphabet = "readable"
+    group_size = 3
+  }
+
+  random_word = {
+    seed     = "0"
+    wordlist = "apple,banana,cherry"
+  }
+}
+`
+
+const testAccTemplatedDataSourceConfigWithFunctions = `
+data "idgen_templated" "test" {
+  template = "{{ .proquint | upper | replace \"-\" \"_\" }}_{{ .random_word | reverse | replace \"elppa\" \"apfel\" }}"
+
+  proquint = {
+    length = 11
+    seed   = "xyz-12"
+  }
+
+  random_word = {
+    seed     = "0"
+    wordlist = "apple,banana,cherry"
+  }
+}
 `

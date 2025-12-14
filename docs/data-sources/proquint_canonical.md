@@ -44,7 +44,7 @@ This data source implements the canonical proquint encoding as described in the 
 
 ### Required
 
-- `value` (String) The value to encode as a proquint. Accepts:
+- `seed` (String) The seed value to encode as a proquint. Accepts:
 
 - **IPv4 address** (e.g., `127.0.0.1`)~>11 chars
 - **Hexadecimal string** (e.g., `0x7f000001` or `7f000001`)~>11 or 23 chars

@@ -18,7 +18,8 @@ func init() {
 	wordSet := make(map[string]struct{})
 	sc := bufio.NewScanner(strings.NewReader(fiveLetterWords))
 	for sc.Scan() {
-		if word := strings.TrimSpace(sc.Text()); word != "" {
+		// Trim whitespace and check if the line is a comment or empty
+		if word := strings.TrimSpace(sc.Text()); word != "" && !strings.HasPrefix(word, "#") {
 			wordSet[word] = struct{}{}
 		}
 	}

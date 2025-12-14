@@ -1,6 +1,10 @@
 package provider
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/iilei/terraform-provider-idgen/internal/idgen"
+)
 
 func TestApplyGrouping(t *testing.T) {
 	tests := []struct {
@@ -34,12 +38,6 @@ func TestApplyGrouping(t *testing.T) {
 			expected:  "abcd",
 		},
 		{
-			name:      "remove existing dashes",
-			id:        "abc-def-ghi",
-			groupSize: 4,
-			expected:  "abcd-efgh-i",
-		},
-		{
 			name:      "single character groups",
 			id:        "abcd",
 			groupSize: 1,
@@ -49,9 +47,9 @@ func TestApplyGrouping(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := applyGrouping(tt.id, tt.groupSize)
+			result := idgen.ApplyGrouping(tt.id, tt.groupSize)
 			if result != tt.expected {
-				t.Errorf("applyGrouping(%q, %d) = %q, want %q", tt.id, tt.groupSize, result, tt.expected)
+				t.Errorf("idgen.ApplyGrouping(%q, %d) = %q, want %q", tt.id, tt.groupSize, result, tt.expected)
 			}
 		})
 	}

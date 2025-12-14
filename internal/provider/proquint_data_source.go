@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -142,12 +143,16 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	// Apply grouping if group_size is specified
+	// Determine group size (default to 5 for standard proquint format)
+	groupSize := 5
 	if !data.GroupSize.IsNull() {
-		groupSize := int(data.GroupSize.ValueInt64())
-		if groupSize > 0 {
-			id = applyGrouping(id, groupSize)
-		}
+		groupSize = int(data.GroupSize.ValueInt64())
+	}
+
+	// Remove all dashes and apply grouping
+	if groupSize > 0 {
+		id = strings.ReplaceAll(id, "-", "")
+		id = idgen.ApplyGrouping(id, groupSize)
 	}
 
 	data.ID = types.StringValue(id)

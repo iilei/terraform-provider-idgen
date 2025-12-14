@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -49,7 +50,9 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"alphabet": schema.StringAttribute{
 				Description: "The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), " +
-					"'readable' (excludes confusing chars like 0/O, 1/l/I), or a custom string of characters.",
+					"'readable' (excludes 0/O, 1/l/I), 'less_confusable' (lowercase only, excludes 0/O, 1/l/I), " +
+					"'least_confusable' (most distinct characters, excludes 0/O, 1/l/I, 2/Z, 5/S, 6/G, 8/B), " +
+					"or a custom string of characters.",
 				Optional: true,
 			},
 			"group_size": schema.Int64Attribute{
@@ -93,7 +96,7 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	alphabet := idgen.Alphanumeric
+	alphabet := idgen.Readable
 	if !data.Alphabet.IsNull() {
 		alphabetStr := data.Alphabet.ValueString()
 		switch alphabetStr {
@@ -103,9 +106,23 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			alphabet = idgen.Numeric
 		case "readable":
 			alphabet = idgen.Readable
+		case "less_confusable":
+			alphabet = idgen.LessConfusable
+		case "least_confusable":
+			alphabet = idgen.LeastConfusable
 		default:
 			// Custom alphabet
 			alphabet = alphabetStr
+		}
+	}
+
+	// Warn if alphabet contains dashes and grouping is enabled
+	if !data.GroupSize.IsNull() && data.GroupSize.ValueInt64() > 0 {
+		if strings.Contains(alphabet, "-") {
+			resp.Diagnostics.AddWarning(
+				warningAlphabetContainsDashTitle,
+				warningAlphabetContainsDashDetail,
+			)
 		}
 	}
 
@@ -116,22 +133,20 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		seed = &seedVal
 	}
 
-	// Generate the NanoID
-	id, err := idgen.GenerateNanoID(alphabet, length, seed)
+	// Determine group size for length calculation
+	groupSize := 0
+	if !data.GroupSize.IsNull() {
+		groupSize = int(data.GroupSize.ValueInt64())
+	}
+
+	// Generate the NanoID (grouping is applied internally if groupSize > 0)
+	id, err := idgen.GenerateNanoID(alphabet, length, seed, groupSize)
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Failed to generate NanoID",
 			"Could not generate NanoID: "+err.Error(),
 		)
 		return
-	}
-
-	// Apply grouping if group_size is specified
-	if !data.GroupSize.IsNull() {
-		groupSize := int(data.GroupSize.ValueInt64())
-		if groupSize > 0 {
-			id = applyGrouping(id, groupSize)
-		}
 	}
 
 	data.ID = types.StringValue(id)

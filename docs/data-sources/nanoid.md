@@ -20,7 +20,7 @@ Generates a NanoID identifier.
 
 ### Optional
 
-- `alphabet` (String) The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), 'readable' (excludes confusing chars like 0/O, 1/l/I), or a custom string of characters.
+- `alphabet` (String) The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), 'readable' (excludes 0/O, 1/l/I), 'less_confusable' (lowercase only, excludes 0/O, 1/l/I), 'least_confusable' (most distinct characters, excludes 0/O, 1/l/I, 2/Z, 5/S, 6/G, 8/B), or a custom string of characters.
 - `group_size` (Number) Number of characters per group, separated by dashes. If not set, no grouping is applied.
 - `length` (Number) The length of the generated ID. Defaults to 21.
 - `seed` (String) Optional seed for deterministic ID generation. Behavior:

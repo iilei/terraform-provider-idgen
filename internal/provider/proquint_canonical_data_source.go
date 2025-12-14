@@ -23,8 +23,8 @@ type ProquintCanonicalDataSource struct{}
 
 // ProquintCanonicalDataSourceModel describes the data source data model.
 type ProquintCanonicalDataSourceModel struct {
-	ID    types.String `tfsdk:"id"`
-	Value types.String `tfsdk:"value"`
+	ID   types.String `tfsdk:"id"`
+	Seed types.String `tfsdk:"seed"`
 }
 
 func (d *ProquintCanonicalDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
@@ -57,8 +57,8 @@ func (d *ProquintCanonicalDataSource) Schema(ctx context.Context, req datasource
 					"- 23 characters for 64-bit values (uint64)",
 				Computed: true,
 			},
-			"value": schema.StringAttribute{
-				MarkdownDescription: "The value to encode as a proquint. Accepts:\n\n" +
+			"seed": schema.StringAttribute{
+				MarkdownDescription: "The seed value to encode as a proquint. Accepts:\n\n" +
 					"- **IPv4 address** (e.g., `127.0.0.1`)~>11 chars\n" +
 					"- **Hexadecimal string** (e.g., `0x7f000001` or `7f000001`)~>11 or 23 chars\n" +
 					"- **uint32 integer** (0-4294967295)~>11 chars\n" +
@@ -91,14 +91,14 @@ func (d *ProquintCanonicalDataSource) Read(ctx context.Context, req datasource.R
 		return
 	}
 
-	// Parse the value and check if it's valid for canonical encoding
-	value, _, errMsg := stringToCanonicalValue(data.Value.ValueString())
+	// Parse the seed and check if it's valid for canonical encoding
+	value, _, errMsg := stringToCanonicalValue(data.Seed.ValueString())
 
 	if errMsg != "" {
 		resp.Diagnostics.AddError(
-			"Invalid value for canonical encoding",
+			"Invalid seed for canonical encoding",
 			fmt.Sprintf(
-				"The value '%s' cannot be canonically encoded as a proquint.\n\n"+
+				"The seed '%s' cannot be canonically encoded as a proquint.\n\n"+
 					"Error: %s\n\n"+
 					"Canonical encoding accepts:\n"+
 					"  - IPv4 addresses (e.g., 127.0.0.1)~>11 chars\n"+
@@ -106,7 +106,7 @@ func (d *ProquintCanonicalDataSource) Read(ctx context.Context, req datasource.R
 					"  - Unsigned integers 0-4294967295~>11 chars\n"+
 					"  - Unsigned integers 4294967296-18446744073709551615~>23 chars\n\n"+
 					"For generating proquint-formatted IDs from arbitrary strings, use the 'idgen_proquint' data source instead.",
-				data.Value.ValueString(),
+				data.Seed.ValueString(),
 				errMsg,
 			),
 		)

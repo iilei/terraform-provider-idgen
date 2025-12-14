@@ -12,26 +12,11 @@ import (
 	"github.com/iilei/terraform-provider-idgen/internal/idgen"
 )
 
-// applyGrouping inserts dashes between groups of characters in the ID.
-// For example, with groupSize=4, "abcdefghij" becomes "abcd-efgh-ij".
-func applyGrouping(id string, groupSize int) string {
-	if groupSize <= 0 || groupSize >= len(id) {
-		return id
-	}
-
-	// Remove any existing dashes first
-	id = strings.ReplaceAll(id, "-", "")
-
-	var grouped strings.Builder
-	for i, char := range id {
-		if i > 0 && i%groupSize == 0 {
-			grouped.WriteRune('-')
-		}
-		grouped.WriteRune(char)
-	}
-
-	return grouped.String()
-}
+const (
+	warningAlphabetContainsDashTitle  = "Alphabet contains dash character"
+	warningAlphabetContainsDashDetail = "The alphabet contains '-' which is also used as the group separator. " +
+		"This may cause confusion when reading the generated ID."
+)
 
 // stringToSeed converts a string to an int64 seed and returns whether it should be directly encoded.
 // This is a wrapper around idgen.StringToSeed for use in the provider package.

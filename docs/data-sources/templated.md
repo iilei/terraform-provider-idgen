@@ -4,17 +4,249 @@ page_title: "idgen_templated Data Source - idgen"
 subcategory: ""
 description: |-
   Generates a templated identifier combining multiple ID types.
+  Use Go template syntax with .proquint, .proquint_canonical, .nanoid, and .random_word variables. Example: {{ .proquint }}-{{ .nanoid }}
+  Template Functions
+  The template supports pipe-chainable string manipulation functions:
+  Case Conversion
+  upper - Convert to uppercase
+  
+  # Input: "sunny" | Output: "SUNNY"
+  template = "{{ .random_word | upper }}"
+  random_word = { seed = "17" }
+  
+  lower - Convert to lowercase
+  
+  # Input: "SUNNY" | Output: "sunny"
+  template = "{{ .random_word | upper | lower }}"
+  random_word = { seed = "17" }
+  
+  String Manipulation
+  replace - Replace all occurrences
+  
+  # Input: "sunny" | Output: "sun"
+  template = "{{ .random_word | replace \"ny\" \"\" }}"
+  random_word = { seed = "17" }
+  
+  substr - Extract substring (start, length)
+  
+  # Input: "sunny" | Output: "unn"
+  template = "{{ .random_word | substr 1 3 }}"
+  random_word = { seed = "17" }
+  
+  trim - Remove leading/trailing whitespace
+  
+  # Input: "  sunny  " | Output: "sunny"
+  template = "{{ .random_word | trim }}"
+  random_word = { seed = "17" }
+  
+  trimPrefix - Remove prefix
+  
+  # Input: "sunny" | Output: "nny"
+  template = "{{ .random_word | trimPrefix \"su\" }}"
+  random_word = { seed = "17" }
+  
+  trimSuffix - Remove suffix
+  
+  # Input: "sunny" | Output: "sun"
+  template = "{{ .random_word | trimSuffix \"ny\" }}"
+  random_word = { seed = "17" }
+  
+  Repetition & Reversal
+  repeat - Repeat string N times
+  
+  # Input: "sunny" | Output: "sunnysunnysunny"
+  template = "{{ .random_word | repeat 3 }}"
+  random_word = { seed = "17" }
+  
+  reverse - Reverse string
+  
+  # Input: "sunny" | Output: "ynnus"
+  template = "{{ .random_word | reverse }}"
+  random_word = { seed = "17" }
+  
+  More Examples
+  
+  # yields: 0q-LUSAB_BABAD
+  data "idgen_templated" "example1" {
+    template = "0q-{{ .proquint_canonical | upper | replace \"-\" \"_\" }}"
+    proquint_canonical = { seed = "127.0.0.1" }
+  }
+  
+  # yields: snowy-vibub-vamiz
+  data "idgen_templated" "example2" {
+    template = "{{ .random_word }}-{{ .proquint }}"
+    random_word = { seed = "a5e57e8a-9a7c-4efd-9fdd-0fcdc7630e3a" }
+    proquint = { seed = "a5e57e8a-9a7c-4efd-9fdd-0fcdc7630e3a" }
+  }
+  
+  # yields: bCi-pPV
+  data "idgen_templated" "example3" {
+    template = "{{ .nanoid }}"
+    nanoid = { length = 21, seed = "72da0233-3b03-4410-854f-3b96e868e15a", alphabet = "readable", length = 7, group_size = 3 }
+  }
 ---
 
 # idgen_templated (Data Source)
 
 Generates a templated identifier combining multiple ID types.
 
+Use Go template syntax with `.proquint`, `.proquint_canonical`, `.nanoid`, and `.random_word` variables. Example: `{{ .proquint }}-{{ .nanoid }}`
+
+## Template Functions
+
+The template supports pipe-chainable string manipulation functions:
+
+### Case Conversion
+
+**`upper`** - Convert to uppercase
+```hcl
+# Input: "sunny" | Output: "SUNNY"
+template = "{{ .random_word | upper }}"
+random_word = { seed = "17" }
+```
+
+**`lower`** - Convert to lowercase
+```hcl
+# Input: "SUNNY" | Output: "sunny"
+template = "{{ .random_word | upper | lower }}"
+random_word = { seed = "17" }
+```
+
+### String Manipulation
+
+**`replace`** - Replace all occurrences
+```hcl
+# Input: "sunny" | Output: "sun"
+template = "{{ .random_word | replace \"ny\" \"\" }}"
+random_word = { seed = "17" }
+```
+
+**`substr`** - Extract substring (start, length)
+```hcl
+# Input: "sunny" | Output: "unn"
+template = "{{ .random_word | substr 1 3 }}"
+random_word = { seed = "17" }
+```
+
+**`trim`** - Remove leading/trailing whitespace
+```hcl
+# Input: "  sunny  " | Output: "sunny"
+template = "{{ .random_word | trim }}"
+random_word = { seed = "17" }
+```
+
+**`trimPrefix`** - Remove prefix
+```hcl
+# Input: "sunny" | Output: "nny"
+template = "{{ .random_word | trimPrefix \"su\" }}"
+random_word = { seed = "17" }
+```
+
+**`trimSuffix`** - Remove suffix
+```hcl
+# Input: "sunny" | Output: "sun"
+template = "{{ .random_word | trimSuffix \"ny\" }}"
+random_word = { seed = "17" }
+```
+
+### Repetition & Reversal
+
+**`repeat`** - Repeat string N times
+```hcl
+# Input: "sunny" | Output: "sunnysunnysunny"
+template = "{{ .random_word | repeat 3 }}"
+random_word = { seed = "17" }
+```
+
+**`reverse`** - Reverse string
+```hcl
+# Input: "sunny" | Output: "ynnus"
+template = "{{ .random_word | reverse }}"
+random_word = { seed = "17" }
+```
+
+### More Examples
+
+```hcl
+# yields: 0q-LUSAB_BABAD
+data "idgen_templated" "example1" {
+  template = "0q-{{ .proquint_canonical | upper | replace \"-\" \"_\" }}"
+  proquint_canonical = { seed = "127.0.0.1" }
+}
+
+# yields: snowy-vibub-vamiz
+data "idgen_templated" "example2" {
+  template = "{{ .random_word }}-{{ .proquint }}"
+  random_word = { seed = "a5e57e8a-9a7c-4efd-9fdd-0fcdc7630e3a" }
+  proquint = { seed = "a5e57e8a-9a7c-4efd-9fdd-0fcdc7630e3a" }
+}
+
+# yields: bCi-pPV
+data "idgen_templated" "example3" {
+  template = "{{ .nanoid }}"
+  nanoid = { length = 21, seed = "72da0233-3b03-4410-854f-3b96e868e15a", alphabet = "readable", length = 7, group_size = 3 }
+}
+
+
+```
+
 
 
 <!-- schema generated by tfplugindocs -->
 ## Schema
 
+### Required
+
+- `template` (String) Go template string with `.proquint`, `.proquint_canonical`, `.nanoid`, and `.random_word` variables
+
+### Optional
+
+- `nanoid` (Attributes) NanoID component configuration (see [below for nested schema](#nestedatt--nanoid))
+- `proquint` (Attributes) Proquint component configuration (see [below for nested schema](#nestedatt--proquint))
+- `proquint_canonical` (Attributes) Canonical Proquint component (encodes IPv4 addresses or integers) (see [below for nested schema](#nestedatt--proquint_canonical))
+- `random_word` (Attributes) Random word component configuration (see [below for nested schema](#nestedatt--random_word))
+
 ### Read-Only
 
 - `id` (String) The generated templated ID.
+
+<a id="nestedatt--nanoid"></a>
+### Nested Schema for `nanoid`
+
+Optional:
+
+- `alphabet` (String) Alphabet preset (`alphanumeric`, `numeric`, `readable`, `less_confusable`, `least_confusable`) or custom alphabet string
+- `group_size` (Number) Number of characters per group separated by dashes
+- `length` (Number) Length of the generated NanoID (default: 21)
+- `seed` (String) Seed for deterministic generation
+
+
+<a id="nestedatt--proquint"></a>
+### Nested Schema for `proquint`
+
+Optional:
+
+- `group_size` (Number) Number of characters per group separated by dashes
+- `length` (Number) Length of the generated Proquint (default: 11)
+- `seed` (String) Seed for deterministic generation
+
+
+<a id="nestedatt--proquint_canonical"></a>
+### Nested Schema for `proquint_canonical`
+
+Required:
+
+- `seed` (String) Seed value (IPv4 address, hex string, or integer) for canonical encoding
+
+Optional:
+
+- `group_size` (Number) Number of characters per group separated by dashes
+
+
+<a id="nestedatt--random_word"></a>
+### Nested Schema for `random_word`
+
+Optional:
+
+- `seed` (String) Seed for deterministic word selection
+- `wordlist` (String) Comma-separated custom word list (uses default 5-letter word list if omitted)
