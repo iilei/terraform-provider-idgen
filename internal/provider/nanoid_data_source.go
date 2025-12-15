@@ -106,10 +106,6 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 			alphabet = idgen.Numeric
 		case "readable":
 			alphabet = idgen.Readable
-		case "less_confusable":
-			alphabet = idgen.LessConfusable
-		case "least_confusable":
-			alphabet = idgen.LeastConfusable
 		default:
 			// Custom alphabet
 			alphabet = alphabetStr

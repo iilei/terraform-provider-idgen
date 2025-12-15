@@ -307,10 +307,6 @@ func generateNanoID(config NanoIDConfig, diags *diag.Diagnostics) (string, error
 			alphabet = idgen.Numeric
 		case "readable":
 			alphabet = idgen.Readable
-		case "less_confusable":
-			alphabet = idgen.LessConfusable
-		case "least_confusable":
-			alphabet = idgen.LeastConfusable
 		default:
 			alphabet = alphabetStr
 		}

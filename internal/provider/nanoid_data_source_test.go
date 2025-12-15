@@ -46,22 +46,6 @@ func TestAccNanoIDDataSource(t *testing.T) {
 					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
 				),
 			},
-			// Test less_confusable alphabet
-			{
-				Config: testAccNanoIDDataSourceConfigLessConfusable,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "79ubdk868"),
-				),
-			},
-			// Test least_confusable alphabet
-			{
-				Config: testAccNanoIDDataSourceConfigLeastConfusable,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "rt4cecyqe"),
-				),
-			},
 		},
 	})
 }
@@ -97,21 +81,5 @@ data "idgen_nanoid" "test" {
   length     = 12
   group_size = 4
   alphabet   = "abc-def"
-}
-`
-
-const testAccNanoIDDataSourceConfigLessConfusable = `
-data "idgen_nanoid" "test" {
-  length   = 9
-  alphabet = "less_confusable"
-  seed     = "test-less-confusable"
-}
-`
-
-const testAccNanoIDDataSourceConfigLeastConfusable = `
-data "idgen_nanoid" "test" {
-  length   = 9
-  alphabet = "least_confusable"
-  seed     = "test-least-confusable"
 }
 `

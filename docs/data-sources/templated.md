@@ -187,7 +187,6 @@ data "idgen_templated" "example3" {
   nanoid = { length = 21, seed = "72da0233-3b03-4410-854f-3b96e868e15a", alphabet = "readable", length = 7, group_size = 3 }
 }
 
-
 ```
 
 

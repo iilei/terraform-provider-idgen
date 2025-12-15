@@ -20,12 +20,6 @@ var (
 
 	// Readable avoids visually confusing characters (excludes 0/O, 1/l/I).
 	Readable = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
-
-	// LessConfusable is an alphabet that avoids visually confusable characters (excludes 0/O, 1/l/I, and uppercase letters), but is not as strict than LeastConfusable.
-	LessConfusable = "23456789abcdefghjkmnpqrstuvwxyz"
-
-	// this set of chars should be best to discern no matter if upper or lower case, even with distorted print / low resolution etc. (Excludes 0/O, 1/l/I, 2/Z, 5/S, 6/G, 8/B, and uppercase letters)
-	LeastConfusable = "3479acdefhjkmnpqrtwxy"
 )
 
 // GenerateNanoID generates a NanoID with the given alphabet and length.
