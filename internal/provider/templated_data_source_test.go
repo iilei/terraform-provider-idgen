@@ -15,7 +15,7 @@ func TestAccTemplatedDataSource(t *testing.T) {
 			{
 				Config: testAccTemplatedDataSourceConfigBasic,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "babab-babad-babab-babab-eU2B"),
 					// Just verify it's set and has expected structure
 				),
 			},
@@ -49,19 +49,17 @@ func TestAccTemplatedDataSource(t *testing.T) {
 
 const testAccTemplatedDataSourceConfigBasic = `
 data "idgen_templated" "test" {
-  template = "{{ .proquint }}-{{ .nanoid }}"
+  template = "{{ .proquint_canonical }}-{{ .nanoid }}"
 
-  proquint = {
-    length = 11
-    seed   = "xyz-12"
-    group_size = 5
+  proquint_canonical = {
+    seed = "4294967296"
   }
 
+
   nanoid = {
-    length = 11
+    length = 4
     seed   = "xyz-12"
     alphabet = "readable"
-    group_size = 3
   }
 }
 `

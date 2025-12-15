@@ -180,7 +180,8 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
    .. code-block:: hcl
 
       data "idgen_proquint" "random" {
-        # No seed => different ID on each apply
+        # No seed => some random proquint within the range from *babab-babab* (`0`) to *zuzuz-zuzuz* (`4_294_967_295`)
+        length = 11
       }
 
 .. note::

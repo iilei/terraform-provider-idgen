@@ -67,6 +67,13 @@ func TestAccProquintCanonicalDataSource_Uint32(t *testing.T) {
 					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "zuzuz-zuzuz"),
 				),
 			},
+			{
+				Config: testAccProquintCanonicalDataSourceConfig_Uint32("4294967296"),
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "4294967296"),
+					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "babab-babad-babab-babab"),
+				),
+			},
 		},
 	})
 }
