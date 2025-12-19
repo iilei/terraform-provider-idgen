@@ -96,8 +96,8 @@ terraform {
   required_providers {
     idgen = {
       source = "iilei/idgen"
-      # version = "*"
-      # (*) See https://github.com/iilei/terraform-provider-idgen/releases for available versions
+      # version = "0.0.1"
+      # Check https://github.com/iilei/terraform-provider-idgen/releases for the actual latest version
     }
   }
 }
