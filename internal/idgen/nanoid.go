@@ -9,9 +9,6 @@ import (
 )
 
 var (
-	// DefaultAlphabet is the alphabet used for ID characters by default.
-	DefaultAlphabet = "_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 	// Alphanumeric is an alphabet of alpha-numerical characters (a-zA-Z0-9).
 	Alphanumeric = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
@@ -19,7 +16,7 @@ var (
 	Numeric = "0123456789"
 
 	// Readable avoids visually confusing characters (excludes 0/O, 1/l/I).
-	Readable = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+	Readable = "23456789abcdefghkmnpqrstwxyzABCDEFGHJKLMNPQRSTWXYZ"
 )
 
 // GenerateNanoID generates a NanoID with the given alphabet and length.

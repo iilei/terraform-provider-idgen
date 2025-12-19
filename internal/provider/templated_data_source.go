@@ -114,7 +114,7 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		},
 		"alphabet": schema.StringAttribute{
 			Optional:            true,
-			MarkdownDescription: "Alphabet preset (`alphanumeric`, `numeric`, `readable`, `less_confusable`, `least_confusable`) or custom alphabet string",
+			MarkdownDescription: "Alphabet preset (`alphanumeric`, `numeric`, `readable`) or custom alphabet string. Default: `alphanumeric`",
 		},
 	}
 	for k, v := range baseAttributes {
@@ -129,7 +129,7 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 		},
 		"wordlist": schema.StringAttribute{
 			Optional:            true,
-			MarkdownDescription: "Comma-separated custom word list (uses default 5-letter word list if omitted)",
+			MarkdownDescription: "Comma-separated custom word list (uses default 5-letter word list if omitted). See [random_word](./random_word) for more details about the word list limitations.",
 		},
 	}
 
@@ -149,22 +149,22 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			},
 			"proquint": schema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: "Proquint component configuration",
+				MarkdownDescription: "Proquint component configuration. See [proquint](./proquint) for more details.",
 				Attributes:          proquintAttributes,
 			},
 			"proquint_canonical": schema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: "Canonical Proquint component (encodes IPv4 addresses or integers)",
+				MarkdownDescription: "Canonical Proquint component (encodes IPv4 addresses or integers). See [proquint_canonical](./proquint_canonical) for more details.",
 				Attributes:          proquintCanonicalAttributes,
 			},
 			"nanoid": schema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: "NanoID component configuration",
+				MarkdownDescription: "NanoID component configuration. See [nanoid](./nanoid) for more details.",
 				Attributes:          nanoidAttributes,
 			},
 			"random_word": schema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: "Random word component configuration",
+				MarkdownDescription: "Random word component configuration. See [random_word](./random_word) for more details.",
 				Attributes:          randomWordAttributes,
 			},
 		},
@@ -297,7 +297,7 @@ func generateNanoID(config NanoIDConfig, diags *diag.Diagnostics) (string, error
 		length = int(config.Length.ValueInt64())
 	}
 
-	alphabet := idgen.DefaultAlphabet
+	alphabet := idgen.Alphanumeric
 	if !config.Alphabet.IsNull() {
 		alphabetStr := config.Alphabet.ValueString()
 		switch strings.ToLower(alphabetStr) {
@@ -392,6 +392,12 @@ func templateFuncs() template.FuncMap {
 		// String manipulation
 		"replace": func(old, new, s string) string {
 			return strings.ReplaceAll(s, old, new)
+		},
+		"prepend": func(prefix, s string) string {
+			return prefix + s
+		},
+		"append": func(suffix, s string) string {
+			return s + suffix
 		},
 		"substr": func(start, length int, s string) string {
 			runes := []rune(s)

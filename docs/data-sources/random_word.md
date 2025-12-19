@@ -4,14 +4,14 @@ page_title: "idgen_random_word Data Source - idgen"
 subcategory: ""
 description: |-
   Generates a random word identifier
-  This data source generates random words based on this five-letter word list https://github.com/iilei/terraform-provider-idgen/tree/master/internal/data/five_letter_words.txt. Sequential numeric seeds (e.g., 1, 2, 3...) produce words in sequential alphabetical order from the word list. To avoid this pattern, include non-numeric characters in your seed (e.g., project-1, project-2), which will be hashed for more randomized distribution. Never use seeded IDs for security tokens, passwords, or cryptographic purposes.
+  Important: The bundled word list contains only 20 five-letter words, providing limited randomness. This list is intentionally small and serves merely as an example. It will not be maintained or expanded for the reasons described in the word list philosophy https://github.com/iilei/terraform-provider-idgen/tree/master/internal/data/five_letter_words.txt. For more control, provide your own custom wordlist with sufficient entropy for your needs.
 ---
 
 # idgen_random_word (Data Source)
 
 Generates a random word identifier
 
-This data source generates random words based on [this five-letter word list](https://github.com/iilei/terraform-provider-idgen/tree/master/internal/data/five_letter_words.txt). Sequential numeric seeds (e.g., 1, 2, 3...) produce words in sequential alphabetical order from the word list. To avoid this pattern, include non-numeric characters in your seed (e.g., `project-1`, `project-2`), which will be hashed for more randomized distribution. Never use seeded IDs for security tokens, passwords, or cryptographic purposes.
+**Important:** The bundled word list contains only 20 five-letter words, providing limited randomness. This list is intentionally small and serves merely as an example. It will not be maintained or expanded for the reasons described in the [word list philosophy](https://github.com/iilei/terraform-provider-idgen/tree/master/internal/data/five_letter_words.txt). For more control, provide your own custom `wordlist` with sufficient entropy for your needs.
 
 
 

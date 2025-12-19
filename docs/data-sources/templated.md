@@ -200,10 +200,10 @@ data "idgen_templated" "example3" {
 
 ### Optional
 
-- `nanoid` (Attributes) NanoID component configuration (see [below for nested schema](#nestedatt--nanoid))
-- `proquint` (Attributes) Proquint component configuration (see [below for nested schema](#nestedatt--proquint))
-- `proquint_canonical` (Attributes) Canonical Proquint component (encodes IPv4 addresses or integers) (see [below for nested schema](#nestedatt--proquint_canonical))
-- `random_word` (Attributes) Random word component configuration (see [below for nested schema](#nestedatt--random_word))
+- `nanoid` (Attributes) NanoID component configuration. See [nanoid](./nanoid) for more details. (see [below for nested schema](#nestedatt--nanoid))
+- `proquint` (Attributes) Proquint component configuration. See [proquint](./proquint) for more details. (see [below for nested schema](#nestedatt--proquint))
+- `proquint_canonical` (Attributes) Canonical Proquint component (encodes IPv4 addresses or integers). See [proquint_canonical](./proquint_canonical) for more details. (see [below for nested schema](#nestedatt--proquint_canonical))
+- `random_word` (Attributes) Random word component configuration. See [random_word](./random_word) for more details. (see [below for nested schema](#nestedatt--random_word))
 
 ### Read-Only
 
@@ -214,7 +214,7 @@ data "idgen_templated" "example3" {
 
 Optional:
 
-- `alphabet` (String) Alphabet preset (`alphanumeric`, `numeric`, `readable`, `less_confusable`, `least_confusable`) or custom alphabet string
+- `alphabet` (String) Alphabet preset (`alphanumeric`, `numeric`, `readable`) or custom alphabet string. Default: `alphanumeric`
 - `group_size` (Number) Number of characters per group separated by dashes
 - `length` (Number) Length of the generated NanoID (default: 21)
 - `seed` (String) Seed for deterministic generation
@@ -248,4 +248,4 @@ Optional:
 Optional:
 
 - `seed` (String) Seed for deterministic word selection
-- `wordlist` (String) Comma-separated custom word list (uses default 5-letter word list if omitted)
+- `wordlist` (String) Comma-separated custom word list (uses default 5-letter word list if omitted). See [random_word](./random_word) for more details about the word list limitations.

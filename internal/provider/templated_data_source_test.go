@@ -15,7 +15,7 @@ func TestAccTemplatedDataSource(t *testing.T) {
 			{
 				Config: testAccTemplatedDataSourceConfigBasic,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "babab-babad-babab-babab-eU2B"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "babab-babad-babab-babab-aysZ"),
 					// Just verify it's set and has expected structure
 				),
 			},
@@ -32,7 +32,7 @@ func TestAccTemplatedDataSource(t *testing.T) {
 				Config: testAccTemplatedDataSourceConfigAllTypes,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "lusab-babad.tataj-rubab.eU2-Btp-p88-i2.apple"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "lusab-babad.tataj-rubab.ays-ZFz-mgE-es.apple"),
 				),
 			},
 			// Test template functions with piping
@@ -40,7 +40,7 @@ func TestAccTemplatedDataSource(t *testing.T) {
 				Config: testAccTemplatedDataSourceConfigWithFunctions,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "TATAJ_RUBAB_apfel"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "TATAJ_RUBAB_:apfel-:apfel-"),
 				),
 			},
 		},
@@ -110,7 +110,7 @@ data "idgen_templated" "test" {
 
 const testAccTemplatedDataSourceConfigWithFunctions = `
 data "idgen_templated" "test" {
-  template = "{{ .proquint | upper | replace \"-\" \"_\" }}_{{ .random_word | reverse | replace \"elppa\" \"apfel\" }}"
+  template = "{{ .proquint | upper | replace \"-\" \"_\" }}_{{ .random_word | reverse | replace \"elppa\" \"apfel\" | append \"-\" | prepend \":\" | repeat 2 }}"
 
   proquint = {
     length = 11
