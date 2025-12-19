@@ -40,3 +40,4 @@ coverage.*
 
 # helper files
 get-test-expectations.sh
+test-run*
