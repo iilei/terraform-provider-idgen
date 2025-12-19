@@ -55,7 +55,7 @@ output "docs_example_id" {
 # Create a templated ID combining multiple types
 
 data "idgen_templated" "docs_complex" {
-  template = "{{ .proquint }}-{{ .nanoid }}-{{ .random_word }}"
+  template = "{{`{{`}} .proquint {{`}}`}}-{{`{{`}} .nanoid {{`}}`}}-{{`{{`}} .random_word {{`}}`}}"
 
   proquint = {
     seed   = "asdf"

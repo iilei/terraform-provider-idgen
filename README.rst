@@ -4,15 +4,17 @@ terraform-provider-idgen
 .. image:: https://codecov.io/github/iilei/terraform-provider-idgen/graph/badge.svg?token=CZ7ZIF2FY9
  :target: https://codecov.io/github/iilei/terraform-provider-idgen
 
-.. warning::
-   ⚠️ **Version 0.x Development - Breaking Changes Expected.**
-
-   This provider is in initial development (0.x.x). Per `semantic versioning <https://semver.org/#spec-item-4>`_, **breaking changes may occur in ANY release** (minor or patch) until version 1.0.0.
 
 .. warning::
   ⚠️ **Not suitable for cryptographic purposes.**
 
   Do not rely on this data source when cryptographically secure random generation is required.
+
+
+.. warning::
+   ⚠️ **Version 0.x Development - Breaking Changes Expected.**
+
+   This provider is in initial development (0.x.x). Per `semantic versioning <https://semver.org/#spec-item-4>`_, **breaking changes may occur in ANY release** (minor or patch) until version 1.0.0.
 
 
 The **idgen** provider offers human-friendly identifiers with knowable characteristics and a reasonable level of control over pronounceability.
