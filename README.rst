@@ -60,35 +60,34 @@ The `Proquint specification <https://arxiv.org/html/0901.4016#_conclusion_and_sp
 
 .. code-block:: hcl
 
-   # Generate a single templated ID combining NanoID and Proquint, fully deterministic.
-   # yields the following exact string: 0q-TATAJ-RUBAB.Yuc.DZH.5iW
-
-   data "idgen_templated" "example" {
-     template = "0q-{{ .proquint | upper }}.{{ .nanoid | replace '-' '.' }}"
-
+  # Generate a single templated ID combining Proquint, NanoID and local variables.
+  # Seeds result in fully deterministic IDs.
+  locals {
     # the seed is going to produce deterministic IDs for both nanoid and proquint
-     proquint = {
-       length = 9
-       seed   = "xyz-12"  # => tataj-rubab
-       group_size = 3
-     }
+    seed = "app-specific-seed"
 
-     nanoid = {
-       length = 9
-       seed   = "xyz-12"  # => Yuc-DZH-5iW
-       group_size = 3
-       alphabet = "readable"
-     }
-   }
+    # other variables
+    size     = 4
+    size_fmt = format("%03d", local.size)  # "004"
+    stage    = "dev"
+  }
 
-   output "my_templated_id" {
-     value = data.idgen_templated.example.id
-   }
+  data "idgen_templated" "example" {
+    template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}${local.stage}"
+    nanoid   = { length = 3, seed = "#${local.size}_${local.seed}", alphabet = "readable" }
+    proquint = { length = 11, seed = "#${local.size}_${local.seed}" }
+  }
+
+  output "my_templated_id" {
+    value = data.idgen_templated.example.id
+  }
+
+  # yields: "0q-zozif-zapuf-rXK-s004dev"
 
 Random Word Generation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Generate human-friendly identifiers using random words from a curated five-letter word list:
+Picks a word based on seed and wordlist.
 
 .. code-block:: hcl
 
@@ -204,39 +203,16 @@ Generate a few IDs with different seeds to see how the provider behaves:
 
 .. code-block:: bash
 
-    ./test-provider.sh
+  TF_VAR_seed_prefix="" ./test-provider.sh
 
-Example output:
+Example output lines:
 
 .. code-block:: console
 
-  Testing ID generation with different seeds
-  ==========================================
   Seed                           | NanoID          | Proquint
   ------------------------------------------------------------------------
-  asdf                           | M0o-t2I-uP3     | dunov-poguv
-  asdf-1                         | Q5y-LKz-mwJ     | nizik-hojiz
-  asdf-2                         | kWB-v3C-ZuP     | gufat-horub
-  asdf-3                         | L3n-wgr-rZb     | bozag-jibad
-  asdf-4                         | HPP-8Tf-ED1     | gapuk-ginop
-  asdf-5                         | hRa-puB-Sq0     | makir-zabit
-  asdf-6                         | RUa-kAH-Rce     | fijif-gakoj
-  asdf-7                         | TA3-HkY-YRy     | kodam-kufub
-  asdf-8                         | qNn-sE7-k5V     | nufuv-hosos
-  asdf-9                         | Pyi-5lT-OwP     | junoh-bizah
-  asdf-10                        | 1d8-7Kd-FYD     | sonop-sotof
-  asdf-11                        | 1UP-JVm-Eyc     | bobud-dahip
-  asdf-12                        | A4d-cFi-2pw     | vatut-kuvag
-
-  ==========================================
-  Try different seed prefixes:
-    TF_VAR_seed_prefix=myapp ./test-provider.sh
-    TF_VAR_seed_prefix=127.0.0.1 ./test-provider.sh
-    TF_VAR_seed_prefix=$(date +"x%s%N") ./test-provider.sh
-  ==========================================
-
-
-..
-   internal notes:
-   named alphabet presets for nanoid and proquint:
-   https://github.com/matoous/go-nanoid/blob/main/gonanoid.go#L9-L39
+  asdf                           | M0o-t2I         | dunov-poguv
+  asdf-1                         | Q5y-LKz         | nizik-hojiz
+  [...]
+  asdf-11                        | 1UP-JVm         | bobud-dahip
+  asdf-12                        | A4d-cFi         | vatut-kuvag

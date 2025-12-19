@@ -23,7 +23,7 @@ Generates a random word identifier
 - `seed` (String) Optional seed for deterministic word selection. The same seed always produces the same word.
 
 - **Numeric strings** (e.g., `"1"`, `"2"`, `"3"`) - Used directly as the index selector, producing words in sequential alphabetical order
-- **Non-numeric strings** (e.g., `"project-a"`, `"env-prod"`) - Hashed to produce a distributed index selector for more varied word selection
+- **Non-numeric strings** (e.g., `"sha256:2d711..."`, `"sha256:a1fce..."`) - Hashed to produce a distributed index selector for more varied word selection
 - **Omitted** - Generates a random word that changes on each Terraform apply
 
 **WARNING:** Seeded identifiers are predictable and should never be used for passwords, tokens, or any security-sensitive values.

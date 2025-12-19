@@ -6,14 +6,14 @@ The template supports pipe-chainable string manipulation functions:
 
 **`upper`** - Convert to uppercase
 ```hcl
-# Input: "sunny" | Output: "SUNNY"
+# Input: "vivid" | Output: "VIVID"
 template = "{{ .random_word | upper }}"
 random_word = { seed = "17" }
 ```
 
 **`lower`** - Convert to lowercase
 ```hcl
-# Input: "SUNNY" | Output: "sunny"
+# Input: "VIVID" | Output: "vivid"
 template = "{{ .random_word | upper | lower }}"
 random_word = { seed = "17" }
 ```
@@ -22,35 +22,49 @@ random_word = { seed = "17" }
 
 **`replace`** - Replace all occurrences
 ```hcl
-# Input: "sunny" | Output: "sun"
+# Input: "vivid" | Output: "vivid"
 template = "{{ .random_word | replace \"ny\" \"\" }}"
+random_word = { seed = "17" }
+```
+
+**`prepend`** - Add prefix to string
+```hcl
+# Input: "vivid" | Output: "prefix-vivid"
+template = "{{ .random_word | prepend \"prefix-\" }}"
+random_word = { seed = "17" }
+```
+
+**`append`** - Add suffix to string
+```hcl
+# Input: "vivid" | Output: "vivid-suffix"
+template = "{{ .random_word | append \"-suffix\" }}"
 random_word = { seed = "17" }
 ```
 
 **`substr`** - Extract substring (start, length)
 ```hcl
-# Input: "sunny" | Output: "unn"
+# Input: "vivid" | Output: "ivi"
 template = "{{ .random_word | substr 1 3 }}"
 random_word = { seed = "17" }
 ```
 
 **`trim`** - Remove leading/trailing whitespace
 ```hcl
-# Input: "  sunny  " | Output: "sunny"
+# Input: "vivid" | Output: "vivid"
 template = "{{ .random_word | trim }}"
 random_word = { seed = "17" }
 ```
 
 **`trimPrefix`** - Remove prefix
 ```hcl
-# Input: "sunny" | Output: "nny"
+# Input: "vivid" | Output: "vivid"
 template = "{{ .random_word | trimPrefix \"su\" }}"
 random_word = { seed = "17" }
 ```
 
 **`trimSuffix`** - Remove suffix
 ```hcl
-# Input: "sunny" | Output: "sun"
+# Input: "vivid" | Output: "vivid"
 template = "{{ .random_word | trimSuffix \"ny\" }}"
 random_word = { seed = "17" }
 ```
@@ -59,14 +73,14 @@ random_word = { seed = "17" }
 
 **`repeat`** - Repeat string N times
 ```hcl
-# Input: "sunny" | Output: "sunnysunnysunny"
+# Input: "vivid" | Output: "vividvividvivid"
 template = "{{ .random_word | repeat 3 }}"
 random_word = { seed = "17" }
 ```
 
 **`reverse`** - Reverse string
 ```hcl
-# Input: "sunny" | Output: "ynnus"
+# Input: "vivid" | Output: "diviv"
 template = "{{ .random_word | reverse }}"
 random_word = { seed = "17" }
 ```
@@ -87,7 +101,7 @@ data "idgen_templated" "example2" {
   proquint = { seed = "a5e57e8a-9a7c-4efd-9fdd-0fcdc7630e3a" }
 }
 
-# yields: bCi-pPV
+# yields: BwG-95b
 data "idgen_templated" "example3" {
   template = "{{ .nanoid }}"
   nanoid = { length = 21, seed = "72da0233-3b03-4410-854f-3b96e868e15a", alphabet = "readable", length = 7, group_size = 3 }

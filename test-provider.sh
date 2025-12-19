@@ -7,12 +7,15 @@ go clean -cache
 go build -o terraform-provider-idgen
 
 # Create a test directory
-TEST_DIR="./test-run"
+TEST_DIR_1="./test-run1"
 TEST_DIR_2="./test-run2"
-rm -rf "$TEST_DIR"
+TEST_DIR_3="./test-run3"
+rm -rf "$TEST_DIR_1"
 rm -rf "$TEST_DIR_2"
-mkdir -p "$TEST_DIR"
+rm -rf "$TEST_DIR_3"
+mkdir -p "$TEST_DIR_1"
 mkdir -p "$TEST_DIR_2"
+mkdir -p "$TEST_DIR_3"
 
 # Define test seeds
 SEED_PREFIX="${TF_VAR_seed_prefix:-asdf}"
@@ -33,22 +36,22 @@ SEEDS=(
 )
 
 # Copy provider binary to test directory with proper naming
-PLUGIN_DIR="$TEST_DIR/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
+PLUGIN_DIR="$TEST_DIR_1/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
 mkdir -p "$PLUGIN_DIR"
 cp terraform-provider-idgen "$PLUGIN_DIR/"
 
 # Create terraform CLI config to override provider
-cat > "$TEST_DIR/.terraformrc" <<EOF
+cat > "$TEST_DIR_1/.terraformrc" <<EOF
 provider_installation {
   dev_overrides {
-    "localhost/local/idgen" = "$PWD/$TEST_DIR/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
+    "localhost/local/idgen" = "$PWD/$TEST_DIR_1/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
   }
   direct {}
 }
 EOF
 
 # Create test configuration
-cat > "$TEST_DIR/main.tf" <<'EOF'
+cat > "$TEST_DIR_1/main.tf" <<'EOF'
 terraform {
   required_providers {
     idgen = {
@@ -64,7 +67,7 @@ variable "seed" {
 }
 
 data "idgen_nanoid" "test" {
-  length     = 9
+  length     = 7
   group_size = 3
   alphabet   = "alphanumeric"
   seed       = var.seed
@@ -89,7 +92,7 @@ EOF
 cat > "$TEST_DIR_2/.terraformrc" <<EOF
 provider_installation {
   dev_overrides {
-    "localhost/local/idgen" = "$PWD/$TEST_DIR/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
+    "localhost/local/idgen" = "$PWD/$TEST_DIR_1/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
   }
   direct {}
 }
@@ -153,7 +156,7 @@ data "idgen_templated" "test_trimSuffix" {
   random_word = { seed = "17" }
 }
 
-
+# yields "vivid-vivid-vivid"
 data "idgen_templated" "test_repeat" {
   template = "{{ .random_word | append \"-\" | repeat 3 | trimSuffix \"-\"}}"
   random_word = { seed = "17" }
@@ -181,6 +184,21 @@ data "idgen_templated" "example3" {
   nanoid = { length = 21, seed = "72da0233-3b03-4410-854f-3b96e868e15a", alphabet = "readable", length = 7, group_size = 3 }
 }
 
+
+locals {
+   stage = "dev"
+   seed = "app-specific-seed"
+   size = 4
+   size_fmt  = format("%03d", local.size)  # "004"
+}
+
+# result: "0q-zozif-zapuf-rXK-s004dev"
+data "idgen_templated" "infra_naming_docs_example" {
+  template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}${local.stage}"
+  nanoid = { length = 3, seed = "#${local.size}_${local.seed}", alphabet = "readable" }
+  proquint = { length = 11, seed = "#${local.size}_${local.seed}" }
+}
+
 # Output values to verify correctness
 
 output "test_proquint_max" { value = data.idgen_proquint.max_value.id }
@@ -197,6 +215,7 @@ output "test_reverse" { value = data.idgen_templated.test_reverse.id }
 output "example1" { value = data.idgen_templated.example1.id }
 output "example2" { value = data.idgen_templated.example2.id }
 output "example3" { value = data.idgen_templated.example3.id }
+output "infra_naming_docs_example" { value = data.idgen_templated.infra_naming_docs_example.id }
 EOF
 
 
@@ -211,7 +230,7 @@ provider_installation {
 EOF
 
 # Run terraform
-cd "$TEST_DIR"
+cd "$TEST_DIR_1"
 export TF_CLI_CONFIG_FILE="$PWD/.terraformrc"
 
 echo ""
@@ -239,8 +258,54 @@ cd "$TEST_DIR_2"
 terraform apply -auto-approve
 
 cd -
+
+# Test templated-parametrization example
+echo ""
+echo "Testing templated-parametrization example"
+echo "========================================="
+
+# Set up TEST_DIR_3 for templated-parametrization
+PLUGIN_DIR_3="$TEST_DIR_3/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
+mkdir -p "$PLUGIN_DIR_3"
+cp terraform-provider-idgen "$PLUGIN_DIR_3/"
+
+cat > "$TEST_DIR_3/.terraformrc" <<EOF
+provider_installation {
+  dev_overrides {
+    "localhost/local/idgen" = "$PWD/$TEST_DIR_3/.terraform/plugins/localhost/local/idgen/0.0.1/$(go env GOOS)_$(go env GOARCH)"
+  }
+  direct {}
+}
+EOF
+
+# Copy the templated-parametrization example and modify provider source for local testing
+cp examples/templated-parametrization/main.tf "$TEST_DIR_3/"
+cp examples/templated-parametrization/variables.tf "$TEST_DIR_3/"
+
+# Override provider source to use local version for testing
+sed -i 's|source = "registry.terraform.io/iilei/idgen"|source = "localhost/local/idgen"|' "$TEST_DIR_3/main.tf"
+
+cd "$TEST_DIR_3"
+export TF_CLI_CONFIG_FILE="$PWD/.terraformrc"
+
+echo "Running with default values:"
+terraform apply -auto-approve
+
+echo ""
+echo "Running with custom values:"
+terraform apply -auto-approve \
+  -var="app_seed=seed-by-team-xyz" \
+  -var="environment=dev" \
+  -var="cluster_size=4" \
+  -var="app_version=7" \
+  -var="app_name=xyz" \
+  -var="region=eu_central_1"
+
+cd -
+
+rm -rf "$TEST_DIR_3"
 rm -rf "$TEST_DIR_2"
-rm -rf "$TEST_DIR"
+rm -rf "$TEST_DIR_1"
 
 echo ""
 echo "=========================================="

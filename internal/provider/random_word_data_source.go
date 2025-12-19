@@ -47,7 +47,7 @@ func (d *RandomWordDataSource) Schema(ctx context.Context, req datasource.Schema
 			"seed": schema.StringAttribute{
 				MarkdownDescription: "Optional seed for deterministic word selection. The same seed always produces the same word.\n\n" +
 					"- **Numeric strings** (e.g., `\"1\"`, `\"2\"`, `\"3\"`) - Used directly as the index selector, producing words in sequential alphabetical order\n" +
-					"- **Non-numeric strings** (e.g., `\"project-a\"`, `\"env-prod\"`) - Hashed to produce a distributed index selector for more varied word selection\n" +
+					"- **Non-numeric strings** (e.g., `\"sha256:2d711...\"`, `\"sha256:a1fce...\"`) - Hashed to produce a distributed index selector for more varied word selection\n" +
 					"- **Omitted** - Generates a random word that changes on each Terraform apply\n\n" +
 					"**WARNING:** Seeded identifiers are predictable and should never be used for passwords, tokens, or any security-sensitive values.",
 				Optional: true,
