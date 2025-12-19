@@ -1,6 +1,9 @@
 terraform-provider-idgen
 =======================
 
+.. image:: https://codecov.io/github/iilei/terraform-provider-idgen/graph/badge.svg?token=CZ7ZIF2FY9 
+ :target: https://codecov.io/github/iilei/terraform-provider-idgen
+ 
 .. warning::
    ⚠️ **Version 0.x Development - Breaking Changes Expected**
 
