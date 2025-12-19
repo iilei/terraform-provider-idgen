@@ -6,24 +6,23 @@ terraform-provider-idgen
 
    This provider is in initial development (0.x.x). Per `semantic versioning <https://semver.org/#spec-item-4>`_, **breaking changes may occur in ANY release** (minor or patch) until version 1.0.0.
 
-.. caution::
-   ⚠️ **Security Notice: Seeded IDs**
+.. warning::
+  ⚠️ **Not suitable for cryptographic purposes**
 
-   When using a **seed** parameter, IDs become **deterministic and predictable**. Seeded IDs should **never** be used for security tokens, passwords, secrets, session IDs, or any cryptographic purpose. Use seeding only for reproducible naming in test environments or infrastructure patterns.
+  Do not rely on this data source when cryptographically secure random generation is required.
 
 
-The **idgen** provider offers flexible, human-friendly identifier generation for Terraform.
-It supports multiple ID formats including **Proquint** and **NanoID**, with optional **templating**, **controlled entropy**, and **seed-based determinism**.
-These IDs are read-only utilities for use within Terraform configurations, making them ideal for predictable, human-readable identifiers without managing lifecycle resources.
+The **idgen** provider offers human-friendly identifiers with knowable characteristics and a reasonable level of control over pronounceability.
+
+Combinations of both `Proquint <https://arxiv.org/html/0901.4016>`_ and `NanoID <https://github.com/ai/nanoid>`_ allow for IDs that are sufficiently random-looking whilst at the same time being pronounceable.
+
 
 Key Features
 ------------
 
 - **Proquint and NanoID generation** (`Proquint <https://arxiv.org/html/0901.4016>`_, `NanoID <https://github.com/ai/nanoid>`_)
-- **Configurable entropy** for predictable or high-randomness IDs
 - **Templating support** to embed IDs into structured naming conventions
 - **Deterministic seeding** for reproducible environments or test setups
-- **Terraform-native usage as data sources** — no resource lifecycle management required
 
 Example
 -------
@@ -37,7 +36,7 @@ Basic ID Generation
    data "idgen_nanoid" "example" {
      length     = 12
      group_size = 4
-     alphabet   = "alphanumeric" # preset: a-zA-Z0-9
+     alphabet   = "readable"
    }
 
    # Generate a Proquint ID with a total length of 12 (entropy calculated internally), grouped every 4 characters
@@ -57,6 +56,7 @@ Templated IDs with Parametrization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The `Proquint specification <https://arxiv.org/html/0901.4016#_conclusion_and_specification>`_ suggests using the optional magic number prefix ``0q-`` before a sequence of proquints for clarity.
+If desired, this can be easily added as follows:
 
 .. code-block:: hcl
 
@@ -73,7 +73,7 @@ The `Proquint specification <https://arxiv.org/html/0901.4016#_conclusion_and_sp
   }
 
   data "idgen_templated" "example" {
-    template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}${local.stage}"
+    template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}-${local.stage}"
     nanoid   = { length = 3, seed = "#${local.size}_${local.seed}", alphabet = "readable" }
     proquint = { length = 11, seed = "#${local.size}_${local.seed}" }
   }
@@ -82,12 +82,12 @@ The `Proquint specification <https://arxiv.org/html/0901.4016#_conclusion_and_sp
     value = data.idgen_templated.example.id
   }
 
-  # yields: "0q-zozif-zapuf-rXK-s004dev"
+  # yields: "0q-zozif-zapuf-rXK-s004-dev"
 
 Random Word Generation
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Picks a word based on seed and wordlist.
+Picks a word based on ``seed`` and ``wordlist``. The default word list is intentionally kept short and will not be extended further.
 
 .. code-block:: hcl
 
@@ -107,9 +107,9 @@ Picks a word based on seed and wordlist.
 
    output "identifiers" {
      value = {
-       random       = data.idgen_random_word.random.id
+       random        = data.idgen_random_word.random.id
        deterministic = data.idgen_random_word.deterministic.id
-       custom       = data.idgen_random_word.custom.id
+       custom        = data.idgen_random_word.custom.id
      }
    }
 
@@ -165,7 +165,7 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
 
       data "idgen_proquint" "app_id" {
         length = 17
-        seed   = "my-app-42"  # => deterministic but random-looking ID
+        seed   = "my-app-42"  # => deterministic but random-looking
       }
 
       data "idgen_nanoid" "user_id" {
@@ -173,8 +173,8 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
         seed   = "user-alice"  # => deterministic NanoID
       }
 
-**Without Seed (Cryptographically Random)**
-   Omitting ``seed`` generates cryptographically secure random IDs:
+**Without Seed (Random)**
+   Omitting ``seed`` generates more random numbers, encoded as ProQuint strings.
 
    .. code-block:: hcl
 
@@ -205,7 +205,7 @@ Generate a few IDs with different seeds to see how the provider behaves:
 
   TF_VAR_seed_prefix="" ./test-provider.sh
 
-Example output lines:
+Example output:
 
 .. code-block:: console
 
