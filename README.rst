@@ -1,23 +1,23 @@
 terraform-provider-idgen
 =======================
 
-.. image:: https://codecov.io/github/iilei/terraform-provider-idgen/graph/badge.svg?token=CZ7ZIF2FY9 
+.. image:: https://codecov.io/github/iilei/terraform-provider-idgen/graph/badge.svg?token=CZ7ZIF2FY9
  :target: https://codecov.io/github/iilei/terraform-provider-idgen
- 
+
 .. warning::
-   ⚠️ **Version 0.x Development - Breaking Changes Expected**
+   ⚠️ **Version 0.x Development - Breaking Changes Expected.**
 
    This provider is in initial development (0.x.x). Per `semantic versioning <https://semver.org/#spec-item-4>`_, **breaking changes may occur in ANY release** (minor or patch) until version 1.0.0.
 
 .. warning::
-  ⚠️ **Not suitable for cryptographic purposes**
+  ⚠️ **Not suitable for cryptographic purposes.**
 
   Do not rely on this data source when cryptographically secure random generation is required.
 
 
 The **idgen** provider offers human-friendly identifiers with knowable characteristics and a reasonable level of control over pronounceability.
 
-Combinations of both `Proquint <https://arxiv.org/html/0901.4016>`_ and `NanoID <https://github.com/ai/nanoid>`_ allow for IDs that are sufficiently random-looking whilst at the same time being pronounceable.
+Combinations of both `Proquint <https://arxiv.org/html/0901.4016>`_ and `NanoID <https://github.com/ai/nanoid>`_ allow for IDs that are sufficiently random-looking while remaining pronounceable.
 
 
 Key Features
@@ -117,7 +117,7 @@ Picks a word based on ``seed`` and ``wordlist``. The default word list is intent
    }
 
 .. note::
-   Sequential numeric seeds (``"0"``, ``"1"``, ``"2"``) produce words in alphabetical order. For varied distribution, use non-numeric seeds (``"project-1"``, ``"env-prod"``) which are hashed for randomized selection.
+   Sequential numeric seeds (``"0"``, ``"1"``, ``"2"``) produce words in alphabetical order. For more varied distribution, use non-numeric seeds (``"project-1"``, ``"env-prod"``) which are hashed for randomized selection.
 
 Alphabet Presets
 ----------------
@@ -187,7 +187,7 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
       }
 
 .. note::
-   proquint seeds are treated as numbers or IPv4 addresses when possible for canonical behavior. For that reason, if high entropy is desired, add a non-numeric part to the seed string to force random generation.
+   proquint seeds are treated as numbers or IPv4 addresses when possible for canonical behavior. For that reason, if high entropy is desired, add a non-numeric component to the seed string to the seed string to force random generation.
 
 Notes
 ~~~~~
