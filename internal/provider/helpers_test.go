@@ -1,7 +1,10 @@
 package provider
 
 import (
+	"strings"
 	"testing"
+
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 
 	"github.com/iilei/terraform-provider-idgen/internal/idgen"
 )
@@ -280,6 +283,94 @@ func TestStringToCanonicalValue(t *testing.T) {
 
 			if byteSize != tt.wantByteSize {
 				t.Errorf("byteSize: got %d, want %d", byteSize, tt.wantByteSize)
+			}
+		})
+	}
+}
+
+func TestValidateLength(t *testing.T) {
+	tests := []struct {
+		name         string
+		length       int64
+		wantValid    bool
+		wantErrors   int
+		wantWarnings int
+		errorMessage string
+	}{
+		{
+			name:         "valid length within normal range",
+			length:       21,
+			wantValid:    true,
+			wantErrors:   0,
+			wantWarnings: 0,
+		},
+		{
+			name:         "minimum valid length",
+			length:       MinIDLength,
+			wantValid:    true,
+			wantErrors:   0,
+			wantWarnings: 0,
+		},
+		{
+			name:         "length below minimum",
+			length:       MinIDLength - 1,
+			wantValid:    false,
+			wantErrors:   1,
+			wantWarnings: 0,
+			errorMessage: "Invalid length",
+		},
+		{
+			name:         "length at warning threshold",
+			length:       WarnIDLength,
+			wantValid:    true,
+			wantErrors:   0,
+			wantWarnings: 0,
+		},
+		{
+			name:         "length just above warning threshold",
+			length:       WarnIDLength + 1,
+			wantValid:    true,
+			wantErrors:   0,
+			wantWarnings: 1,
+		},
+		{
+			name:         "maximum valid length",
+			length:       MaxIDLength,
+			wantValid:    true,
+			wantErrors:   0,
+			wantWarnings: 1, // Should warn because it's > WarnIDLength
+		},
+		{
+			name:         "length above maximum",
+			length:       MaxIDLength + 1,
+			wantValid:    false,
+			wantErrors:   1,
+			wantWarnings: 0,
+			errorMessage: "Invalid length",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var diags diag.Diagnostics
+			result := validateLength(tt.length, &diags)
+
+			if result != tt.wantValid {
+				t.Errorf("validateLength() = %v, want %v", result, tt.wantValid)
+			}
+
+			if len(diags.Errors()) != tt.wantErrors {
+				t.Errorf("validateLength() errors = %d, want %d", len(diags.Errors()), tt.wantErrors)
+			}
+
+			if len(diags.Warnings()) != tt.wantWarnings {
+				t.Errorf("validateLength() warnings = %d, want %d", len(diags.Warnings()), tt.wantWarnings)
+			}
+
+			if tt.errorMessage != "" && len(diags.Errors()) > 0 {
+				if !strings.Contains(diags.Errors()[0].Summary(), tt.errorMessage) {
+					t.Errorf("validateLength() error message = %q, want to contain %q", diags.Errors()[0].Summary(), tt.errorMessage)
+				}
 			}
 		})
 	}

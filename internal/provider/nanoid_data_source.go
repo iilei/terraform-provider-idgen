@@ -50,9 +50,7 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			},
 			"alphabet": schema.StringAttribute{
 				Description: "The alphabet to use for ID generation. Can be 'alphanumeric' (a-zA-Z0-9), 'numeric' (0-9), " +
-					"'readable' (excludes 0/O, 1/l/I), 'less_confusable' (lowercase only, excludes 0/O, 1/l/I), " +
-					"'least_confusable' (most distinct characters, excludes 0/O, 1/l/I, 2/Z, 5/S, 6/G, 8/B), " +
-					"or a custom string of characters.",
+					"'readable' (excludes 0/O, 1/l/I) or a custom string of characters.",
 				Optional: true,
 			},
 			"group_size": schema.Int64Attribute{

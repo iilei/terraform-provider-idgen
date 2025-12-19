@@ -11,39 +11,40 @@ func TestAccNanoIDDataSource(t *testing.T) {
 		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
-			// Test basic unseeded generation
 			{
 				Config: testAccNanoIDDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
 				),
 			},
-			// Test custom length
 			{
 				Config: testAccNanoIDDataSourceConfigCustomLength,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "7Kn2tT9yAR"),
 				),
 			},
-			// Test seeded (deterministic) generation
 			{
 				Config: testAccNanoIDDataSourceConfigSeeded,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "578035768397"),
 				),
 			},
-			// Test with group_size
 			{
 				Config: testAccNanoIDDataSourceConfigGrouped,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "dl2I-NvNS-QT"),
 				),
 			},
-			// Test warning when alphabet contains dash and group_size is set
 			{
 				Config: testAccNanoIDDataSourceConfigDashInAlphabet,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_nanoid.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "ecdb-eafd"),
+				),
+			},
+			{
+				Config: testAccNanoIDDataSourceConfigReadableAlphabet,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "7Kn2-tT9y-AR"),
 				),
 			},
 		},
@@ -57,6 +58,7 @@ data "idgen_nanoid" "test" {}
 const testAccNanoIDDataSourceConfigCustomLength = `
 data "idgen_nanoid" "test" {
   length = 10
+  seed   = "42"
 }
 `
 
@@ -73,13 +75,24 @@ data "idgen_nanoid" "test" {
   length     = 12
   group_size = 4
   alphabet   = "alphanumeric"
+  seed       = "42"
 }
 `
 
 const testAccNanoIDDataSourceConfigDashInAlphabet = `
 data "idgen_nanoid" "test" {
-  length     = 12
+  length     = 9
   group_size = 4
   alphabet   = "abc-def"
+  seed       = "42"
+}
+`
+
+const testAccNanoIDDataSourceConfigReadableAlphabet = `
+data "idgen_nanoid" "test" {
+  length     = 12
+  group_size = 4
+  alphabet   = "readable"
+  seed       = "42"
 }
 `

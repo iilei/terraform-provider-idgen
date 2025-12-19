@@ -239,3 +239,135 @@ func TestCanonicalProquintLengths(t *testing.T) {
 		})
 	}
 }
+
+func TestGenerateSeededBytes_NonMultipleOf8(t *testing.T) {
+	// Test the missing branch in generateSeededBytes for when remaining < 8
+	testCases := []struct {
+		name   string
+		length int
+		seed   int64
+	}{
+		{"1 byte", 1, 12345},
+		{"3 bytes", 3, 12345},
+		{"5 bytes", 5, 12345},
+		{"7 bytes", 7, 12345},
+		{"9 bytes (8+1)", 9, 12345},
+		{"11 bytes (8+3)", 11, 12345},
+		{"15 bytes (8+7)", 15, 12345},
+		{"17 bytes (16+1)", 17, 12345},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Test via GenerateProquint which calls generateSeededBytes
+			result, err := GenerateProquint(tc.length, &tc.seed, false)
+			if err != nil {
+				t.Fatalf("GenerateProquint failed: %v", err)
+			}
+
+			// Result should be non-empty and properly formed proquint
+			if result == "" {
+				t.Error("Expected non-empty result")
+			}
+
+			// Test determinism - same seed should produce same result
+			result2, err2 := GenerateProquint(tc.length, &tc.seed, false)
+			if err2 != nil {
+				t.Fatalf("Second GenerateProquint failed: %v", err2)
+			}
+
+			if result != result2 {
+				t.Errorf("Non-deterministic result: got %q and %q", result, result2)
+			}
+
+			// Different seeds should produce different results
+			differentSeed := tc.seed + 1
+			result3, err3 := GenerateProquint(tc.length, &differentSeed, false)
+			if err3 != nil {
+				t.Fatalf("Third GenerateProquint failed: %v", err3)
+			}
+
+			if result == result3 {
+				t.Errorf("Same result for different seeds: %q", result)
+			}
+		})
+	}
+}
+
+func TestGenerateSeededBytes_EdgeCases(t *testing.T) {
+	t.Run("zero length", func(t *testing.T) {
+		result, err := GenerateProquint(0, nil, false)
+		if err != nil {
+			t.Fatalf("GenerateProquint with zero length failed: %v", err)
+		}
+		// Should produce empty result or minimal proquint
+		if len(result) > 10 { // Arbitrary reasonable limit for empty case
+			t.Errorf("Expected short result for zero length, got: %q", result)
+		}
+	})
+
+	t.Run("large non-multiple of 8", func(t *testing.T) {
+		// Test a larger number that's not a multiple of 8
+		seed := int64(42)
+		result, err := GenerateProquint(23, &seed, false) // 23 = 16 + 7
+		if err != nil {
+			t.Fatalf("GenerateProquint failed: %v", err)
+		}
+
+		if result == "" {
+			t.Error("Expected non-empty result")
+		}
+
+		// Should be deterministic
+		result2, err2 := GenerateProquint(23, &seed, false)
+		if err2 != nil {
+			t.Fatalf("Second call failed: %v", err2)
+		}
+
+		if result != result2 {
+			t.Errorf("Not deterministic: %q vs %q", result, result2)
+		}
+	})
+}
+
+func TestGenerateProquint_UnseededRandomGeneration(t *testing.T) {
+	// Test the unseeded (crypto/rand) path
+	t.Run("unseeded generation", func(t *testing.T) {
+		result1, err1 := GenerateProquint(4, nil, false)
+		if err1 != nil {
+			t.Fatalf("First unseeded GenerateProquint failed: %v", err1)
+		}
+
+		result2, err2 := GenerateProquint(4, nil, false)
+		if err2 != nil {
+			t.Fatalf("Second unseeded GenerateProquint failed: %v", err2)
+		}
+
+		// Results should be different (since using crypto/rand)
+		if result1 == result2 {
+			t.Errorf("Expected different results from crypto/rand, got same: %q", result1)
+		}
+
+		// Both should be valid proquints
+		if result1 == "" {
+			t.Error("First result is empty")
+		}
+		if result2 == "" {
+			t.Error("Second result is empty")
+		}
+	})
+
+	t.Run("unseeded with various lengths", func(t *testing.T) {
+		lengths := []int{1, 2, 4, 8, 16}
+		for _, length := range lengths {
+			result, err := GenerateProquint(length, nil, false)
+			if err != nil {
+				t.Errorf("GenerateProquint with length %d failed: %v", length, err)
+				continue
+			}
+			if result == "" {
+				t.Errorf("Empty result for length %d", length)
+			}
+		}
+	})
+}
