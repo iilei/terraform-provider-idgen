@@ -82,3 +82,9 @@ run:
 # changelog:
 #   use: git
 #   sort: asc
+
+release:
+  footer: |
+    ## Notes
+
+    This is an automated release.  For a curated changelog, see [CHANGELOG.md](https://github.com/iilei/terraform-provider-idgen/blob/master/CHANGELOG.md).
