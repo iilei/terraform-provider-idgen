@@ -22,8 +22,7 @@ repos:
   - repo: https://github.com/golangci/golangci-lint
     rev: 9f61b0f53f80672872fced07b6874397c3ed197b  # frozen: v2.7.2
     hooks:
-      - id: golangci-lint
-        args: [--fix, --timeout=5m]
+      - id: golangci-lint-full
 
   - repo: local
     hooks:
