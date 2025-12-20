@@ -60,3 +60,11 @@ repos:
         entry: bash -c 'for x in "$@"; do echo "Processing $x"; sed -i -E "/^(\S{5})|(#.*)$/!d"  "$x"; done' --
         files: internal/data/.*words.txt$
         pass_filenames: true
+        stages: [manual]
+
+      - id: changelog
+        name: Update changelog
+        entry: git-chglog -o CHANGELOG.md
+        language: system
+        pass_filenames: false
+        stages: [manual]
