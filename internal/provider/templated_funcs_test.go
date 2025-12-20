@@ -296,7 +296,6 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -327,7 +326,6 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -359,7 +357,6 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -391,7 +388,6 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -432,7 +428,6 @@ func TestGenerateNanoID_DashWarning(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -466,7 +461,6 @@ func TestGenerateNanoID_DashWarning(t *testing.T) {
 		}
 
 		result, err := generateNanoID(config, &diags)
-
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}

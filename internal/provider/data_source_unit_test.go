@@ -101,6 +101,7 @@ func TestNanoIDDataSource_Read_ErrorCases(t *testing.T) {
 		idgen.GenerateNanoID("", 21, &seed, 0)
 	})
 }
+
 func TestProquintDataSource_CanonicalLengthLogic(t *testing.T) {
 	// Test the specific logic that sets canonicalLength based on seed value
 	// Note: The selected line (seedVal > 0xFFFFFFFF -> canonicalLength = 23) is actually
@@ -195,6 +196,7 @@ func TestProquintDataSource_CanonicalLengthLogic(t *testing.T) {
 		}
 	})
 }
+
 func TestProquintDataSource_Configure(t *testing.T) {
 	ds := NewProquintDataSource().(*ProquintDataSource)
 	req := datasource.ConfigureRequest{}

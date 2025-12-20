@@ -64,13 +64,20 @@ formatters:
   enable:
     - gofmt
     - goimports
+    - gofumpt
   settings:
     gofmt:
       simplify: false
     goimports:
       local-prefixes:
         - github.com/iilei/terraform-provider-idgen
-
+    gofumpt:
+      # Module path which contains the source code being formatted.
+      # Default: ""
+      module-path: github.com/iilei/terraform-provider-idgen
+      # Choose whether to use the extra rules.
+      # Default: false
+      extra-rules: true
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
