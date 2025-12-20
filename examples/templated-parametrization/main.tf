@@ -16,7 +16,7 @@ locals {
 
   # Other variables for parametrization
   size     = var.cluster_size
-  size_fmt = format("%03d", local.size)  # zero-padded 3 digits
+  size_fmt = format("%03d", local.size) # zero-padded 3 digits
   stage    = var.environment
 }
 
@@ -34,14 +34,14 @@ data "idgen_templated" "infrastructure_name" {
 }
 
 data "idgen_templated" "versioned_resource" {
-  template = "{{ .random_word }}-v${format("%02d", var.app_version)}-{{ .nanoid }}"
+  template    = "{{ .random_word }}-v${format("%02d", var.app_version)}-{{ .nanoid }}"
   random_word = { seed = "${var.app_seed}-resource" }
   nanoid      = { length = 8, seed = "${var.app_seed}-v${var.app_version}", alphabet = "readable" }
 }
 
 # Database naming with compliance formatting
 data "idgen_templated" "database_name" {
-  template = "{{ .random_word | lower }}_${lower(var.environment)}_{{ .nanoid | lower }}"
+  template    = "{{ .random_word | lower }}_${lower(var.environment)}_{{ .nanoid | lower }}"
   random_word = { seed = "${var.app_seed}-db" }
   nanoid      = { length = 8, seed = "${var.app_seed}-db", alphabet = "alphanumeric" }
 }
@@ -80,12 +80,12 @@ output "s3_bucket_name" {
 # Show all parameters used
 output "parameters_used" {
   value = {
-    app_seed     = var.app_seed
-    environment  = var.environment
-    cluster_size = var.cluster_size
-    app_version  = var.app_version
-    app_name     = var.app_name
-    region       = var.region
+    app_seed       = var.app_seed
+    environment    = var.environment
+    cluster_size   = var.cluster_size
+    app_version    = var.app_version
+    app_name       = var.app_name
+    region         = var.region
     size_formatted = local.size_fmt
   }
   description = "All input parameters used for templating"
