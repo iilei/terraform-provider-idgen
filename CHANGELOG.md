@@ -1,11 +1,9 @@
-<a name="v0.0.1-pre"></a>
+<a name="v0.0.1"></a>
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
-
-## [v0.0.1-pre] - 2025-12-20
+## [v0.0.1] - 2025-12-20
 
 ### Added
 - Initial implementation of `terraform-provider-idgen`
@@ -27,6 +25,3 @@ All notable changes to this project will be documented in this file.
 ### Notes
 - ⚠️ Pre-release version - API may change
 - Not suitable for cryptographic purposes
-
-[Unreleased]: https://github.com/iilei/terraform-provider-idgen/compare/v0.0.1-pre.1...HEAD
-[0.0.1-pre.1]:  https://github.com/iilei/terraform-provider-idgen/releases/tag/v0.0.1-pre.1
