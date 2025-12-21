@@ -23,8 +23,8 @@ description: |-
   String Manipulation
   replace - Replace all occurrences
   
-  # Input: "vivid" | Output: "vivid"
-  template = "{{ .random_word | replace \"ny\" \"\" }}"
+  # Input: "vivid" | Output: "timid"
+  template = "{{ .random_word | replace \"viv\" \"tim\" }}"
   random_word = { seed = "17" }
   
   prepend - Add prefix to string
@@ -53,14 +53,14 @@ description: |-
   
   trimPrefix - Remove prefix
   
-  # Input: "vivid" | Output: "vivid"
-  template = "{{ .random_word | trimPrefix \"su\" }}"
+  # Input: "vivid" | Output: "id"
+  template = "{{ .random_word | trimPrefix \"viv\" }}"
   random_word = { seed = "17" }
   
   trimSuffix - Remove suffix
   
-  # Input: "vivid" | Output: "vivid"
-  template = "{{ .random_word | trimSuffix \"ny\" }}"
+  # Input: "vivid" | Output: "viv"
+  template = "{{ .random_word | trimSuffix \"id\" }}"
   random_word = { seed = "17" }
   
   Repetition & Reversal
@@ -128,8 +128,8 @@ random_word = { seed = "17" }
 
 **`replace`** - Replace all occurrences
 ```hcl
-# Input: "vivid" | Output: "vivid"
-template = "{{ .random_word | replace \"ny\" \"\" }}"
+# Input: "vivid" | Output: "timid"
+template = "{{ .random_word | replace \"viv\" \"tim\" }}"
 random_word = { seed = "17" }
 ```
 
@@ -163,15 +163,15 @@ random_word = { seed = "17" }
 
 **`trimPrefix`** - Remove prefix
 ```hcl
-# Input: "vivid" | Output: "vivid"
-template = "{{ .random_word | trimPrefix \"su\" }}"
+# Input: "vivid" | Output: "id"
+template = "{{ .random_word | trimPrefix \"viv\" }}"
 random_word = { seed = "17" }
 ```
 
 **`trimSuffix`** - Remove suffix
 ```hcl
-# Input: "vivid" | Output: "vivid"
-template = "{{ .random_word | trimSuffix \"ny\" }}"
+# Input: "vivid" | Output: "viv"
+template = "{{ .random_word | trimSuffix \"id\" }}"
 random_word = { seed = "17" }
 ```
 
