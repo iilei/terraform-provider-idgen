@@ -102,3 +102,47 @@ terraform {
   }
 }
 ```
+
+### Preflight Seed Checks
+
+In order to be sure to yield unique ids with your specific seed on a bunch of iterations, you might want to employ
+a helper script.
+
+There is a `preflight.sh` in the [git repo](https://github.com/iilei/terraform-provider-idgen/blob/master/preflight.sh) which helps to ensure the seed doesn't yield any collusions.
+
+
+```sh
+./preflight.sh '#' 10000  60000
+```
+
+
+Output:
+
+```
+  [...]
+  #69979 	nilij-muzal
+  #69980 	dunis-nihag
+  #69981 	vakad-luzaz
+  #69982 	mibum-kalas
+  #69983 	jitov-dozan
+  #69984 	zosoh-zugaj
+  #69985 	sorap-niron
+  #69986 	lanut-fizoh
+  #69987 	hahug-haror
+  #69988 	vilon-dajos
+  #69989 	pizaz-nosan
+  #69990 	rikik-savom
+  #69991 	lavoj-mokal
+  #69992 	gumup-vogus
+  #69993 	luzah-zukiv
+  #69994 	togid-vufop
+  #69995 	bolom-zapin
+  #69996 	vihuh-latut
+  #69997 	datuz-jivah
+  #69998 	kumam-bodod
+  #69999 	nubof-julib
+
+  # === Duplicate Analysis ===
+    # No duplicates found - all IDs are unique for 10000 seeds.
+
+```

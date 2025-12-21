@@ -201,6 +201,46 @@ Notes
 - Terraform-native string interpolation can still be used for additional customization if needed.
 
 
+Preflight Seed Checks
+---------------------
+
+Assert your custom seed produces unique IDs for a large number of iterations using the ``preflight.sh`` script in this repo.
+Requires `jq<https://jqlang.org/>`_ to be installed.
+
+.. code-block:: bash
+  ./preflight.sh '#' 10000  60000
+
+
+Output:
+
+.. code-block::
+  [...]
+  #69979 	nilij-muzal
+  #69980 	dunis-nihag
+  #69981 	vakad-luzaz
+  #69982 	mibum-kalas
+  #69983 	jitov-dozan
+  #69984 	zosoh-zugaj
+  #69985 	sorap-niron
+  #69986 	lanut-fizoh
+  #69987 	hahug-haror
+  #69988 	vilon-dajos
+  #69989 	pizaz-nosan
+  #69990 	rikik-savom
+  #69991 	lavoj-mokal
+  #69992 	gumup-vogus
+  #69993 	luzah-zukiv
+  #69994 	togid-vufop
+  #69995 	bolom-zapin
+  #69996 	vihuh-latut
+  #69997 	datuz-jivah
+  #69998 	kumam-bodod
+  #69999 	nubof-julib
+
+  # === Duplicate Analysis ===
+  # No duplicates found - all IDs are unique for 10000 seeds.
+
+
 Local Development
 -----------------
 
