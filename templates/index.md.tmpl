@@ -141,8 +141,7 @@ Output:
   #69997 	datuz-jivah
   #69998 	kumam-bodod
   #69999 	nubof-julib
-
   # === Duplicate Analysis ===
-    # No duplicates found - all IDs are unique for 10000 seeds.
+  # No duplicates found - all IDs are unique for 10000 seeds.
 
 ```
