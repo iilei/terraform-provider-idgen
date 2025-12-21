@@ -13,7 +13,7 @@ repos:
       - id: trailing-whitespace
         exclude: '^(internal/provider/.*\.md)|docs/.*$'
       - id: end-of-file-fixer
-        exclude: '^(internal/provider/.*\.md)|docs/.*$'
+        exclude: '.*\.md$'
       - id: check-yaml
       - id: check-added-large-files
       - id: mixed-line-ending
