@@ -179,7 +179,7 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
       }
 
 **Without Seed (Random)**
-   Omitting ``seed`` generates more random numbers, encoded as ProQuint strings.
+   Omitting ``seed`` generates more random numbers, encoded as Proquint strings.
 
    .. code-block:: hcl
 
@@ -189,7 +189,7 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
       }
 
 .. note::
-   proquint seeds are treated as numbers or IPv4 addresses when possible for canonical behavior. For that reason, if high entropy is desired, add a non-numeric component to the seed string to the seed string to force random generation.
+   proquint seeds are treated as numbers or IPv4 addresses when possible for canonical behavior. For that reason, if high entropy is desired, add a non-numeric component to the seed string to force random generation.
 
 Notes
 ~~~~~
@@ -218,6 +218,14 @@ Example output:
   ------------------------------------------------------------------------
   asdf                           | M0o-t2I         | dunov-poguv
   asdf-1                         | Q5y-LKz         | nizik-hojiz
-  [...]
+  asdf-2                         | kWB-v3C         | gufat-horub
+  asdf-3                         | L3n-wgr         | bozag-jibad
+  asdf-4                         | HPP-8Tf         | gapuk-ginop
+  asdf-5                         | hRa-puB         | makir-zabit
+  asdf-6                         | RUa-kAH         | fijif-gakoj
+  asdf-7                         | TA3-HkY         | kodam-kufub
+  asdf-8                         | qNn-sE7         | nufuv-hosos
+  asdf-9                         | Pyi-5lT         | junoh-bizah
+  asdf-10                        | 1d8-7Kd         | sonop-sotof
   asdf-11                        | 1UP-JVm         | bobud-dahip
   asdf-12                        | A4d-cFi         | vatut-kuvag
