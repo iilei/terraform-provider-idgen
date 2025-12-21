@@ -2,10 +2,14 @@
 Brief description of changes.
 
 ## Type of Change
-- [ ] Bug fix
-- [ ] New feature
 - [ ] Documentation update
-- [ ] Code refactoring
+
+<!--
+- [x] Bug fix
+- [x] New feature
+- [x] Documentation update
+- [x] Code refactoring
+-->
 
 ## Checklist
 - [ ] Tests pass locally
@@ -13,4 +17,4 @@ Brief description of changes.
 - [ ] Updated documentation
 - [ ] Commits are signed
 - [ ] Follows existing code style
-- [ ] pre-commit hooks pass
+- [ ] Pre-commit hooks pass
