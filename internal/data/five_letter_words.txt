@@ -13,7 +13,7 @@
 # See: https://github.com/moby/moby/pull/43210/files
 #
 # This feature is NOT intended to generate "funny" or "clever" identifiers. Its sole
-# purpose is to provide clear, professional, and unambiguous tokens for naming resources.
+# purpose is to provide a guardrail for how composite IDs should be pronounced.
 # *
 afoot
 aglow
