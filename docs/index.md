@@ -89,20 +89,16 @@ output "docs_complex_id" {
 
 ## Configuration
 
-This provider requires no configuration. Simply declare it in your Terraform configuration:
+This provider requires no configuration options. Just declare it in your `required_providers` block:
 
 ```terraform
 terraform {
   required_providers {
     idgen = {
       source = "iilei/idgen"
-      # version = "0.0.1"
+      version = "0.0.2"
       # Check https://github.com/iilei/terraform-provider-idgen/releases for the actual latest version
     }
   }
-}
-
-provider "idgen" {
-  # No configuration required
 }
 ```
