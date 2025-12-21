@@ -1,27 +1,29 @@
 <a name="v0.0.1"></a>
-# Changelog
+## [v0.0.1](https://github.com/iilei/terraform-provider-idgen/compare/v0.0.1-pre-01...v0.0.1)
 
-All notable changes to this project will be documented in this file.
+> 2025-12-21
 
-## [v0.0.1] - 2025-12-20
+### Features
 
-### Added
-- Initial implementation of `terraform-provider-idgen`
-- [Proquint](https://arxiv.org/html/0901.4016) ID generation with configurable entropy and grouping
-- [NanoID](https://github.com/ai/nanoid) generation with custom alphabets (alphanumeric, numeric, readable)
-- Random word selection from a very basic built-in or custom wordlists
-- Templated ID composition combining multiple ID types and basic string functions
-  - Template functions: `upper`, `lower`, `replace`, `prepend`, `append`, `substr`
-- Deterministic seeding for reproducible IDs
-- Support for direct IPv4-to-Proquint encoding per specification
+* review pull request template
 
+<a name="v0.0.1-pre-01"></a>
+## v0.0.1-pre-01
 
-### Documentation
-- README and docs with usage examples
-- Example configurations for various use cases
-- Contribution guidelines
-- MIT License
+> 2025-12-20
 
-### Notes
-- ⚠️ Pre-release version - API may change
-- Not suitable for cryptographic purposes
+### Bug Fixes
+
+* correct goreleaser config
+* correct goreleaser config
+
+### Features
+
+* add prepend / append functions, change defaults
+* remove exotic alphabets
+* add template based id generation
+* add random word picker
+* add idgen_proquint / idgen_proquint_canonical
+* group size param
+* draft scaffolding
+
