@@ -21,10 +21,10 @@ Upgrading to v0.0.3
 
 **Breaking Change:** This version migrates from ``math/rand`` to ``math/rand/v2``, which changes the random number generation algorithm. The same seed will produce **different outputs when upgrading from v0.0.2 to v0.0.3** (though seeds remain fully deterministic within each version). Making this change now while the provider is new and the user base is small minimizes disruption before the ``v1.0`` release.
 
-* 💥 **Seeded IDs will generate different values** compared to previous versions
-   * Seeds still work deterministically within ``v0.0.3`` — the change only affects migration between versions
-   * ``proquint_canonical`` is **not affected** as it strictly adheres to the canonical Proquint specification
-   * Benefits: ~2x performance improvement and better statistical properties
+💥 **Seeded IDs will generate different values** compared to previous versions
+  * Seeds still work deterministically within ``v0.0.3`` — the change only affects migration between versions
+  * ``proquint_canonical`` is **not affected** as it strictly adheres to the canonical Proquint specification
+  * Benefits: ~2x performance improvement and better statistical properties
 
 Motivation
 ----------
@@ -220,43 +220,43 @@ Assert your custom seed produces unique IDs for a large number of iterations usi
 Requires `jq <https://jqlang.org/>`_ to be installed.
 
 
-   .. code-block:: bash
+.. code-block:: bash
 
-       ./preflight.sh '#' 10000 60000
+  ./preflight.sh '#' 10000 60000
 
 
 Output:
 
-   .. code-block::
+.. code-block::
 
-   [...]
-   #69976    nojus-rajop
-   #69977    tovok-rajaf
-   #69978    ritaz-sijal
-   #69979    gopad-vuhon
-   #69980    sumon-fifir
-   #69981    lugug-nujoz
-   #69982    puhog-vurug
-   #69983    tobib-saguj
-   #69984    dodij-gotip
-   #69985    hosir-dozip
-   #69986    puhun-rifoh
-   #69987    hahuf-vivih
-   #69988    vubar-mijok
-   #69989    gazuf-ribut
-   #69990    bimar-zudor
-   #69991    hukud-kazoz
-   #69992    risul-jodud
-   #69993    hazoj-godub
-   #69994    valoz-pitit
-   #69995    gizut-kuzal
-   #69996    mogun-vopur
-   #69997    fufov-fahib
-   #69998    dipod-pomob
-   #69999    pisad-visih
+  [...]
+  #69976    nojus-rajop
+  #69977    tovok-rajaf
+  #69978    ritaz-sijal
+  #69979    gopad-vuhon
+  #69980    sumon-fifir
+  #69981    lugug-nujoz
+  #69982    puhog-vurug
+  #69983    tobib-saguj
+  #69984    dodij-gotip
+  #69985    hosir-dozip
+  #69986    puhun-rifoh
+  #69987    hahuf-vivih
+  #69988    vubar-mijok
+  #69989    gazuf-ribut
+  #69990    bimar-zudor
+  #69991    hukud-kazoz
+  #69992    risul-jodud
+  #69993    hazoj-godub
+  #69994    valoz-pitit
+  #69995    gizut-kuzal
+  #69996    mogun-vopur
+  #69997    fufov-fahib
+  #69998    dipod-pomob
+  #69999    pisad-visih
 
-   # === Duplicate Analysis ===
-   # No duplicates found - all IDs are unique for 10000 seeds.
+  # === Duplicate Analysis ===
+  # No duplicates found - all IDs are unique for 10000 seeds.
 
 Local Development
 -----------------

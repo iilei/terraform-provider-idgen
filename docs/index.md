@@ -23,10 +23,10 @@ terraform-provider-idgen
 
 **Breaking Change:** This version migrates from `math/rand` to `math/rand/v2`, which changes the random number generation algorithm. The same seed will produce **different outputs when upgrading from v0.0.2 to v0.0.3** (though seeds remain fully deterministic within each version). Making this change now while the provider is new and the user base is small minimizes disruption before the `v1.0` release.
 
-* 💥 **Seeded IDs will generate different values** compared to previous versions
-   * Seeds still work deterministically within `v0.0.3` — the change only affects migration between versions
-   * `proquint_canonical` is **not affected** as it strictly adheres to the canonical Proquint specification
-   * Benefits: ~2x performance improvement and better statistical properties
+💥 **Seeded IDs will generate different values** compared to previous versions
+  * Seeds still work deterministically within `v0.0.3` — the change only affects migration between versions
+  * `proquint_canonical` is **not affected** as it strictly adheres to the canonical Proquint specification
+  * Benefits: ~2x performance improvement and better statistical properties
 
 ## Motivation
 
