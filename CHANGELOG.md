@@ -1,5 +1,10 @@
 <a name="v0.0.3"></a>
-## [v0.0.3](https://github.com/iilei/terraform-provider-idgen/compare/v0.0.2...v0.0.3)
+## [v0.0.3](https://github.com/iilei/terraform-provider-idgen/compare/v0.0.3-pre-01...v0.0.3)
+
+> 2025-12-23
+
+<a name="v0.0.3-pre-01"></a>
+## [v0.0.3-pre-01](https://github.com/iilei/terraform-provider-idgen/compare/v0.0.2...v0.0.3-pre-01)
 
 > 2025-12-23
 
