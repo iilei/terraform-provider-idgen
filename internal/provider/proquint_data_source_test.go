@@ -31,7 +31,7 @@ func TestAccProquintDataSource(t *testing.T) {
 			{
 				Config: testAccProquintDataSourceConfigSeeded,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "jisuh-gifoj-hizab"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "lufuh-fumod-tagan"),
 				),
 			},
 			// Test with group_size (unseeded should produce different results)
@@ -54,43 +54,43 @@ func TestAccProquintDataSource(t *testing.T) {
 			{
 				Config: testAccProquintDataSourceConfigSeededDeterministic,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test1", "id", "jisuh-gifoj"),
-					resource.TestCheckResourceAttr("data.idgen_proquint.test2", "id", "jisuh-gifoj"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test1", "id", "lufuh-fumod"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test2", "id", "lufuh-fumod"),
 				),
 			},
 			// Test string seed (non-numeric)
 			{
 				Config: testAccProquintDataSourceConfigStringSeed,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "zatoz-fojal"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "rofuz-ropot"),
 				),
 			},
 			// Test minimum length
 			{
 				Config: testAccProquintDataSourceConfigMinLength,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "kutut"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "ludub"),
 				),
 			},
 			// Test seeded with grouping
 			{
 				Config: testAccProquintDataSourceConfigSeededGrouped,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "pun-ikh-ani-hjo-vol"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "jol-abl-iba-rlo-fas"),
 				),
 			},
 			// Test group_size = 0 (no grouping)
 			{
 				Config: testAccProquintDataSourceConfigZeroGroupSize,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "mamug-zotod"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "kasoj-vizah"),
 				),
 			},
 			// Test small group_size
 			{
 				Config: testAccProquintDataSourceConfigSmallGroupSize,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "nu-fa-lg-ar-am"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.test", "id", "bi-zi-mv-ij-iv"),
 				),
 			},
 			// Test invalid length (should fail)
@@ -196,7 +196,7 @@ data "idgen_proquint" "test" {
 const testAccProquintDataSourceConfigMinLength = `
 data "idgen_proquint" "test" {
   length = 5
-  seed   = "min"
+  seed   = "*"
 }
 `
 

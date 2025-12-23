@@ -194,7 +194,7 @@ locals {
 
 # result: "0q-zozif-zapuf-rXK-s004dev"
 data "idgen_templated" "infra_naming_docs_example" {
-  template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}${local.stage}"
+  template = "0q-{{ .proquint }}-{{ .nanoid }}-s${local.size_fmt}-${local.stage}"
   nanoid = { length = 3, seed = "#${local.size}_${local.seed}", alphabet = "readable" }
   proquint = { length = 11, seed = "#${local.size}_${local.seed}" }
 }

@@ -2,7 +2,7 @@ package idgen
 
 import (
 	"math"
-	"math/rand"
+	"math/rand/v2"
 	"strings"
 
 	gonanoid "github.com/matoous/go-nanoid/v2"
@@ -76,12 +76,12 @@ func ApplyGrouping(id string, groupSize int) string {
 // This is NOT cryptographically secure and should only be used for
 // testing or reproducible infrastructure patterns.
 func generateSeededNanoID(seed int64, alphabet string, length int) string {
-	rng := rand.New(rand.NewSource(seed))
+	rng := rand.New(rand.NewPCG(uint64(seed), uint64(seed)))
 	result := make([]byte, length)
 	alphabetLen := len(alphabet)
 
 	for i := 0; i < length; i++ {
-		result[i] = alphabet[rng.Intn(alphabetLen)]
+		result[i] = alphabet[rng.IntN(alphabetLen)]
 	}
 
 	return string(result)

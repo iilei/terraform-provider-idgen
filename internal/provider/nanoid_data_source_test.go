@@ -20,31 +20,25 @@ func TestAccNanoIDDataSource(t *testing.T) {
 			{
 				Config: testAccNanoIDDataSourceConfigCustomLength,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "7Kn2tT9yAR"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "CnDxXfeKNw"),
 				),
 			},
 			{
 				Config: testAccNanoIDDataSourceConfigSeeded,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "578035768397"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "636592278400"),
 				),
 			},
 			{
 				Config: testAccNanoIDDataSourceConfigGrouped,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "dl2I-NvNS-QT"),
-				),
-			},
-			{
-				Config: testAccNanoIDDataSourceConfigDashInAlphabet,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "ecdb-eafd"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "MxNF-7qpU-YE"),
 				),
 			},
 			{
 				Config: testAccNanoIDDataSourceConfigReadableAlphabet,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "7Kn2-tT9y-AR"),
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "CnDx-XfeK-Nw"),
 				),
 			},
 		},
@@ -79,20 +73,36 @@ data "idgen_nanoid" "test" {
 }
 `
 
-const testAccNanoIDDataSourceConfigDashInAlphabet = `
-data "idgen_nanoid" "test" {
-  length     = 9
-  group_size = 4
-  alphabet   = "abc-def"
-  seed       = "42"
-}
-`
-
 const testAccNanoIDDataSourceConfigReadableAlphabet = `
 data "idgen_nanoid" "test" {
   length     = 12
   group_size = 4
   alphabet   = "readable"
+  seed       = "42"
+}
+`
+
+func TestAccNanoIDDataSource_DashInAlphabet(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccNanoIDDataSourceConfigDashInAlphabet,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.idgen_nanoid.test", "id", "dcd--fbbe"),
+				),
+				// Expect a warning diagnostic about dashes in custom alphabet
+			},
+		},
+	})
+}
+
+const testAccNanoIDDataSourceConfigDashInAlphabet = `
+data "idgen_nanoid" "test" {
+  length     = 9
+  group_size = 4
+  alphabet   = "abc-def"  # Dash in alphabet + grouping = potential confusion
   seed       = "42"
 }
 `

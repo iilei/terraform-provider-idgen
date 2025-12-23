@@ -112,7 +112,7 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	// Warn if alphabet contains dashes and grouping is enabled
 	if !data.GroupSize.IsNull() && data.GroupSize.ValueInt64() > 0 {
-		if strings.Contains(alphabet, "-") {
+		if !data.Alphabet.IsNull() && strings.Contains(data.Alphabet.ValueString(), "-") {
 			resp.Diagnostics.AddWarning(
 				warningAlphabetContainsDashTitle,
 				warningAlphabetContainsDashDetail,

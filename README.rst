@@ -16,6 +16,18 @@ terraform-provider-idgen
 
    This provider is in initial development (0.x.x). Per `semantic versioning <https://semver.org/#spec-item-4>`_, **breaking changes may occur in ANY release** (minor or patch) until version 1.0.0.
 
+Upgrading to v0.0.3
+-------------------
+
+**Breaking Change:** This version migrates from ``math/rand`` to ``math/rand/v2``, which changes the random number generation algorithm. The same seed will produce **different outputs when upgrading from v0.0.2 to v0.0.3** (though seeds remain fully deterministic within each version). Making this change now while the provider is new and the user base is small minimizes disruption before the ``v1.0`` release.
+
+* 💥 **Seeded IDs will generate different values** compared to previous versions
+   * Seeds still work deterministically within ``v0.0.3`` — the change only affects migration between versions
+   * ``proquint_canonical`` is **not affected** as it strictly adheres to the canonical Proquint specification
+   * Benefits: ~2x performance improvement and better statistical properties
+
+Motivation
+----------
 
 The **idgen** provider offers human-friendly identifiers with knowable characteristics and a reasonable level of control over pronounceability.
 
@@ -87,7 +99,7 @@ If desired, this can be easily added as follows:
     value = data.idgen_templated.example.id
   }
 
-  # yields: "0q-zozif-zapuf-rXK-s004-dev"
+  # yields: "0q-luhaj-bojon-Ehs-s004-dev"
 
 Random Word Generation
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -217,31 +229,34 @@ Output:
 
    .. code-block::
 
-       [...]
-       #69979 	nilij-muzal
-       #69980 	dunis-nihag
-       #69981 	vakad-luzaz
-       #69982 	mibum-kalas
-       #69983 	jitov-dozan
-       #69984 	zosoh-zugaj
-       #69985 	sorap-niron
-       #69986 	lanut-fizoh
-       #69987 	hahug-haror
-       #69988 	vilon-dajos
-       #69989 	pizaz-nosan
-       #69990 	rikik-savom
-       #69991 	lavoj-mokal
-       #69992 	gumup-vogus
-       #69993 	luzah-zukiv
-       #69994 	togid-vufop
-       #69995 	bolom-zapin
-       #69996 	vihuh-latut
-       #69997 	datuz-jivah
-       #69998 	kumam-bodod
-       #69999 	nubof-julib
-       # === Duplicate Analysis ===
-       # No duplicates found - all IDs are unique for 10000 seeds.
+   [...]
+   #69976    nojus-rajop
+   #69977    tovok-rajaf
+   #69978    ritaz-sijal
+   #69979    gopad-vuhon
+   #69980    sumon-fifir
+   #69981    lugug-nujoz
+   #69982    puhog-vurug
+   #69983    tobib-saguj
+   #69984    dodij-gotip
+   #69985    hosir-dozip
+   #69986    puhun-rifoh
+   #69987    hahuf-vivih
+   #69988    vubar-mijok
+   #69989    gazuf-ribut
+   #69990    bimar-zudor
+   #69991    hukud-kazoz
+   #69992    risul-jodud
+   #69993    hazoj-godub
+   #69994    valoz-pitit
+   #69995    gizut-kuzal
+   #69996    mogun-vopur
+   #69997    fufov-fahib
+   #69998    dipod-pomob
+   #69999    pisad-visih
 
+   # === Duplicate Analysis ===
+   # No duplicates found - all IDs are unique for 10000 seeds.
 
 Local Development
 -----------------
@@ -258,16 +273,16 @@ Example output:
 
   Seed                           | NanoID          | Proquint
   ------------------------------------------------------------------------
-  asdf                           | M0o-t2I         | dunov-poguv
-  asdf-1                         | Q5y-LKz         | nizik-hojiz
-  asdf-2                         | kWB-v3C         | gufat-horub
-  asdf-3                         | L3n-wgr         | bozag-jibad
-  asdf-4                         | HPP-8Tf         | gapuk-ginop
-  asdf-5                         | hRa-puB         | makir-zabit
-  asdf-6                         | RUa-kAH         | fijif-gakoj
-  asdf-7                         | TA3-HkY         | kodam-kufub
-  asdf-8                         | qNn-sE7         | nufuv-hosos
-  asdf-9                         | Pyi-5lT         | junoh-bizah
-  asdf-10                        | 1d8-7Kd         | sonop-sotof
-  asdf-11                        | 1UP-JVm         | bobud-dahip
-  asdf-12                        | A4d-cFi         | vatut-kuvag
+  asdf                           | 6Yl-rJF         | rovif-tahad
+  asdf-1                         | hXs-nQ8         | rofiv-sukal
+  asdf-2                         | SVZ-jZK         | kapak-pazof
+  asdf-3                         | AsD-fuY         | majuj-fohir
+  asdf-4                         | JmX-fw1         | kamas-tadah
+  asdf-5                         | aeK-nPy         | sizub-hopaj
+  asdf-6                         | zMG-f0R         | vumip-haruj
+  asdf-7                         | SW1-oU2         | nonas-silin
+  asdf-8                         | BTt-o4o         | kabad-fovuj
+  asdf-9                         | oI0-ooI         | jitik-fakom
+  asdf-10                        | iYX-Fiu         | zajud-kavun
+  asdf-11                        | lUq-Xck         | tavip-vihan
+  asdf-12                        | 2x0-WGl         | gupum-zigar

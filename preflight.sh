@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Build the provider
+echo "Building provider..."
+go clean -cache
+go build -o terraform-provider-idgen
+
 # Usage:
 # interactive:
 # > ./preflight.sh
@@ -16,9 +21,14 @@ set -eo pipefail
 # > ./preflight.sh 'x*-' 5000 0
 
 TEST_DIR="./preflight"
-ID_GEN_VERSION="0.0.2"
+ID_GEN_VERSION="0.0.3"
 rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
+
+# Copy provider binary to test directory with proper naming
+PLUGIN_DIR="$TEST_DIR/.terraform/plugins/localhost/local/idgen/${ID_GEN_VERSION}/$(go env GOOS)_$(go env GOARCH)"
+mkdir -p "$PLUGIN_DIR"
+cp terraform-provider-idgen "$PLUGIN_DIR/"
 
 # Accept arguments or prompt for input
 TF_VAR_string_prefix="${1:-}"
@@ -45,13 +55,22 @@ else
 fi
 
 
-# Generate main.tf with multiple data sources
-cat > "$TEST_DIR/main.tf" <<EOF
+# Create terraform CLI config to override provider
+cat > "$TEST_DIR/.terraformrc" <<EOF
+provider_installation {
+  dev_overrides {
+    "localhost/local/idgen" = "$PWD/$PLUGIN_DIR/"
+  }
+  direct {}
+}
+EOF
+
+# Create test configuration
+cat > "$TEST_DIR/main.tf" <<'EOF'
 terraform {
   required_providers {
     idgen = {
-      source  = "iilei/idgen"
-      version = "${ID_GEN_VERSION}"
+      source  = "localhost/local/idgen"
     }
   }
 }
@@ -104,7 +123,8 @@ output "last_seed" {
 EOF
 
 cd "$TEST_DIR" >/dev/null
-terraform init >/dev/null
+export TF_CLI_CONFIG_FILE="$PWD/.terraformrc"
+# terraform init >/dev/null
 
 terraform apply -auto-approve >/dev/null
 
