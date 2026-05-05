@@ -9,6 +9,8 @@
 - Use latest pre-commit hooks
 - Bump all deps
 - Bump workflows
+- Add test to ensure proquint sha256 compat
+- Correct tf path
 ## [0.0.3-pre-01] - 2025-12-23
 
 ### 🚜 Refactor
