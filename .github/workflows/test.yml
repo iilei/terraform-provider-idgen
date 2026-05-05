@@ -113,17 +113,22 @@ jobs:
           go mod download
 
       - name: Set up Terraform
+        id: setup-terraform
         uses: hashicorp/setup-terraform@v4
         with:
           terraform_version: ${{ matrix.terraform }}
           terraform_wrapper: false
+
+      - name: Resolve Terraform binary path
+        shell: bash
+        run: echo "TF_BIN=$(which terraform)" >> "$GITHUB_ENV"
 
       - name: TF acceptance tests
         shell: bash
         timeout-minutes: 10
         env:
           TF_ACC: "1"
-          TF_ACC_TERRAFORM_PATH: ${{ env.TERRAFORM_CLI_PATH }}/terraform
+          TF_ACC_TERRAFORM_PATH: ${{ env.TF_BIN }}
         run: |
           go test -v -coverprofile=coverage.txt -covermode=atomic ./internal/provider/...
 
@@ -133,7 +138,7 @@ jobs:
         env:
           TF_ACC: "1"
           TF_LOG: "WARN"
-          TF_ACC_TERRAFORM_PATH: ${{ env.TERRAFORM_CLI_PATH }}/terraform
+          TF_ACC_TERRAFORM_PATH: ${{ env.TF_BIN }}
         run: |
           output=$(TF_ACC=1 TF_LOG="WARN" go test -v -run ^TestAccNanoIDDataSource_DashInAlphabet$ ./internal/provider/ 2>&1)
           if echo "$output" | grep -q "The alphabet contains '-'"; then
