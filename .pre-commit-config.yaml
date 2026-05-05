@@ -1,14 +1,14 @@
 
 repos:
   - repo: https://github.com/editorconfig-checker/editorconfig-checker.python
-    rev: 11ea70506fd878d26129b2b87746fd1a1f6b561b  # frozen: 3.6.0
+    rev: 3.6.1
     hooks:
       - id: editorconfig-checker
         alias: ec
-        exclude: '\.go$'  # Go formatting is handled by gofmt and editorconfig-checker yields false positives
+        exclude: '^(internal/provider/.*\.md)|docs/.*|\.rst|\.go|\.md\.tmpl$'
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
         exclude: '^(internal/provider/.*\.md)|docs/.*$'
@@ -20,7 +20,7 @@ repos:
         args: ['--fix=lf']
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: 9f61b0f53f80672872fced07b6874397c3ed197b  # frozen: v2.7.2
+    rev: v2.12.1
     hooks:
       - id: golangci-lint-full
 
@@ -49,7 +49,7 @@ repos:
 
       - id: tfplugindocs
         name: terraform-plugin-docs generate
-        entry: bash -c '$(go env GOBIN)/tfplugindocs generate --provider-name idgen'
+        entry: bash -c 'tfplugindocs generate --provider-name idgen'
         language: system
         pass_filenames: false
         files: '(internal/provider/.*\.go|examples/.*|templates/.*)'
@@ -64,7 +64,7 @@ repos:
 
       - id: changelog
         name: Update changelog
-        entry: git-chglog -o CHANGELOG.md
+        entry: git-cliff -o CHANGELOG.md
         language: system
         pass_filenames: false
         stages: [manual]
