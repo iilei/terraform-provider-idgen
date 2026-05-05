@@ -7,6 +7,8 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Use latest pre-commit hooks
+- Bump all deps
+- Bump workflows
 ## [0.0.3-pre-01] - 2025-12-23
 
 ### 🚜 Refactor
