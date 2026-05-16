@@ -6,9 +6,9 @@ terraform-provider-idgen
 
 
 .. warning::
-  ⚠️ **Not suitable for cryptographic purposes.**
+  ⚠️ **IDs are not secrets.**
 
-  Do not rely on this data source when cryptographically secure random generation is required.
+  These identifiers are *not* designed to be used as secrets or for cryptographic purposes.
 
 
 Motivation
