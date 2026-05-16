@@ -57,7 +57,7 @@ func TestIdgenProvider_DataSources(t *testing.T) {
 	dataSources := p.DataSources(context.Background())
 
 	// Should return all data sources
-	expectedCount := 5 // nanoid, proquint, proquint_canonical, random_word, templated
+	expectedCount := 6 // nanoid, proquint, proquint_canonical, idgen_proquint_big, random_word, templated
 	if len(dataSources) != expectedCount {
 		t.Errorf("DataSources() should return %d data sources, got %d", expectedCount, len(dataSources))
 	}

@@ -1,6 +1,27 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Preflight checks
+if ! command -v terraform &> /dev/null; then
+  echo "Error: 'terraform' is not installed or not in PATH" >&2
+  exit 1
+fi
+
+if ! command -v go &> /dev/null; then
+  echo "Error: 'go' is not installed or not in PATH" >&2
+  exit 1
+fi
+
+if [[ ! -f go.mod ]]; then
+  echo "Error: go.mod not found — run this script from the repository root" >&2
+  exit 1
+fi
+
+if [[ ! -w . ]]; then
+  echo "Error: current directory is not writable" >&2
+  exit 1
+fi
+
 # Build the provider
 echo "Building provider..."
 go clean -cache
@@ -114,11 +135,12 @@ data "idgen_proquint" "min_value" {
   seed       = 0
 }
 
-data "idgen_proquint" "max_value" {
-  length     = 11
-  seed       = 4294967295
+// max sha256
+// zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz
+data "idgen_proquint_big" "max_value" {
+  length     = 95
+  seed       = 115792089237316195423570985008687907853269984665640564039457584007913129639935
 }
-
 
 data "idgen_templated" "test_upper" {
   template = "{{ .random_word | upper }}"
@@ -201,7 +223,7 @@ data "idgen_templated" "infra_naming_docs_example" {
 
 # Output values to verify correctness
 
-output "test_proquint_max" { value = data.idgen_proquint.max_value.id }
+output "test_proquint_max" { value = data.idgen_proquint_big.max_value.id }
 output "test_proquint_min" { value = data.idgen_proquint.min_value.id }
 output "test_upper" { value = data.idgen_templated.test_upper.id }
 output "test_lower" { value = data.idgen_templated.test_lower.id }
@@ -241,6 +263,7 @@ echo "------------------------------------------------------------------------"
 
 for SEED in "${SEEDS[@]}"; do
   # Run terraform and capture output
+
   FULL_OUTPUT=$(terraform apply -auto-approve -var="seed=$SEED" 2>&1)
 
   # Extract the last occurrence of nanoid and proquint values
@@ -254,9 +277,22 @@ done
 cd -
 
 cd "$TEST_DIR_2"
-
+echo "Running Terraform in TEST_DIR_2..."
 terraform apply -auto-approve
 
+# Extract the output for test_proquint_max
+EXPECTED_MAX_PROQUINT="zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz"
+ACTUAL_MAX_PROQUINT=$(terraform output -raw test_proquint_max)
+
+# Assert the output matches the expected value
+if [[ "$ACTUAL_MAX_PROQUINT" == "$EXPECTED_MAX_PROQUINT" ]]; then
+  echo "Assertion passed: test_proquint_max matches the expected value."
+else
+  echo "Assertion failed: test_proquint_max does not match the expected value."
+  echo "Expected: $EXPECTED_MAX_PROQUINT"
+  echo "Actual: $ACTUAL_MAX_PROQUINT"
+  exit 1
+fi
 cd -
 
 # Test templated-parametrization example

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
+	"math/big"
 	"strings"
 	"text/template"
 
@@ -274,7 +275,12 @@ func generateProquint(config ProquintConfig) string {
 		byteLength = 2
 	}
 
-	id, _ := idgen.GenerateProquint(byteLength, seed, false)
+	var bigSeed *big.Int
+	if seed != nil {
+		bigSeed = big.NewInt(*seed)
+	}
+
+	id, _ := idgen.GenerateProquint(byteLength, bigSeed, false)
 
 	// Determine group size (default to 5 for standard proquint format)
 	groupSize := 5

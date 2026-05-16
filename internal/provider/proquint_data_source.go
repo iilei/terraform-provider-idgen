@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"math/big"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -99,20 +100,16 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 	}
 
 	// Check if seed is provided
-	var seed *int64
+	var seed *big.Int
 	var directEncode bool
 	if !data.Seed.IsNull() {
-		seedVal, shouldDirectEncode := stringToSeed(data.Seed.ValueString())
-		seed = &seedVal
+		seedVal, shouldDirectEncode := idgen.StringToSeedBigInt(data.Seed.ValueString())
+		seed = seedVal
 		directEncode = shouldDirectEncode
 
 		// Warn if using direct encoding with non-canonical length
 		if shouldDirectEncode {
-			// Determine what the canonical length would be
-			canonicalLength := int64(11) // default for uint32
-			if seedVal > 0xFFFFFFFF {
-				canonicalLength = 23 // uint64 range
-			}
+			canonicalLength := int64(11)
 
 			if length != canonicalLength {
 				resp.Diagnostics.AddWarning(
@@ -123,10 +120,10 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 							"Consider using idgen_proquint_canonical for canonical encoding without specifying length, "+
 							"or adjust length to %d for the standard canonical output.",
 						data.Seed.ValueString(),
-						canonicalLength,
+						11,
 						length,
-						map[bool]string{true: "truncated", false: "zero-padded"}[length < canonicalLength],
-						canonicalLength,
+						map[bool]string{true: "truncated", false: "zero-padded"}[length < 11],
+						11,
 					),
 				)
 			}

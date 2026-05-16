@@ -21,7 +21,7 @@ go build -o terraform-provider-idgen
 # > ./preflight.sh 'x*-' 5000 0
 
 TEST_DIR="./preflight"
-ID_GEN_VERSION="0.0.3"
+ID_GEN_VERSION="1.0.1"
 rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
 
