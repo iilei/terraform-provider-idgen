@@ -3,13 +3,14 @@ package idgen
 
 import (
 	"encoding/binary"
+	"math/big"
 	mathrand "math/rand/v2"
 
 	"github.com/syrupyy/proquint"
 )
 
-func generateSeededBytes(seed int64, length int) []byte {
-	rng := mathrand.New(mathrand.NewPCG(uint64(seed), uint64(seed)))
+func generateSeededBytes(seed uint64, length int) []byte {
+	rng := mathrand.New(mathrand.NewPCG(seed, seed))
 	bytes := make([]byte, length)
 
 	for i := 0; i < length; i += 8 {
@@ -26,6 +27,30 @@ func generateSeededBytes(seed int64, length int) []byte {
 	}
 
 	return bytes
+}
+
+func canonicalBigIntBytes(seed *big.Int) []byte {
+	if seed == nil {
+		return nil
+	}
+
+	if seed.Sign() == 0 {
+		return make([]byte, 4)
+	}
+
+	if seed.BitLen() <= 32 {
+		bytes := make([]byte, 4)
+		seed.FillBytes(bytes)
+		return bytes
+	}
+
+	if seed.BitLen() <= 64 {
+		bytes := make([]byte, 8)
+		seed.FillBytes(bytes)
+		return bytes
+	}
+
+	return seed.Bytes()
 }
 
 func generateRandomBytes(length int) []byte {
@@ -49,46 +74,31 @@ func generateRandomBytes(length int) []byte {
 //
 // Behavior:
 //   - If seed is non-nil and directEncode is true: encodes the seed value directly as bytes.
-//     If byteLength differs from canonical size, the output is adjusted (padded with zeros or truncated).
+//     If byteLength differs from the canonical or requested size, the output is adjusted (padded with zeros or truncated).
 //   - If seed is non-nil and directEncode is false: generates deterministic random bytes using the seed.
 //   - If seed is nil: uses math/rand/v2 for random generation (NOT cryptographically secure).
-func GenerateProquint(byteLength int, seed *int64, directEncode bool) (string, error) {
+func GenerateProquint(byteLength int, seed *big.Int, directEncode bool) (string, error) {
 	var bytes []byte
 
 	if seed != nil && directEncode {
-		// Direct encoding mode: use canonical encoding
-		value := uint64(*seed)
-
-		// Determine canonical byte size
-		var canonicalBytes []byte
-		if value > 0xFFFFFFFF {
-			// 64-bit canonical encoding
-			canonicalBytes = make([]byte, 8)
-			binary.BigEndian.PutUint64(canonicalBytes, value)
-		} else {
-			// 32-bit canonical encoding
-			canonicalBytes = make([]byte, 4)
-			binary.BigEndian.PutUint32(canonicalBytes, uint32(value))
-		}
-
-		canonicalByteLength := len(canonicalBytes)
+		// Direct encoding mode: use canonical big-endian encoding for uint32/uint64-sized values.
+		bytes = canonicalBigIntBytes(seed)
+		canonicalByteLength := len(bytes)
 
 		// Adjust to requested byte length if different
 		if byteLength > 0 && byteLength != canonicalByteLength {
 			if byteLength < canonicalByteLength {
 				// Truncate: take the rightmost bytes (least significant)
-				bytes = canonicalBytes[canonicalByteLength-byteLength:]
+				bytes = bytes[canonicalByteLength-byteLength:]
 			} else {
 				// Pad: prepend zero bytes (most significant)
 				bytes = make([]byte, byteLength)
-				copy(bytes[byteLength-canonicalByteLength:], canonicalBytes)
+				copy(bytes[byteLength-canonicalByteLength:], canonicalBigIntBytes(seed))
 			}
-		} else {
-			bytes = canonicalBytes
 		}
 	} else if seed != nil {
 		// Seeded random generation
-		bytes = generateSeededBytes(*seed, byteLength)
+		bytes = generateSeededBytes(new(big.Int).Abs(seed).Uint64(), byteLength)
 	} else {
 		// Unseeded: math/rand/v2 (non-cryptographic)
 		bytes = generateRandomBytes(byteLength)
@@ -104,17 +114,6 @@ func GenerateProquint(byteLength int, seed *int64, directEncode bool) (string, e
 //
 // This implements the canonical encoding described in the original proquint specification.
 func GenerateCanonicalProquint(value uint64) (string, error) {
-	var bytes []byte
-
-	if value > 0xFFFFFFFF {
-		// 64-bit encoding: 8 bytes~>4 words~>23 chars
-		bytes = make([]byte, 8)
-		binary.BigEndian.PutUint64(bytes, value)
-	} else {
-		// 32-bit encoding: 4 bytes~>2 words~>11 chars
-		bytes = make([]byte, 4)
-		binary.BigEndian.PutUint32(bytes, uint32(value))
-	}
-
-	return proquint.EncodeBytes(bytes, "-"), nil
+	seed := new(big.Int).SetUint64(value)
+	return GenerateProquint(0, seed, true)
 }

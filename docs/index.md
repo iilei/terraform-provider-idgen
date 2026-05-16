@@ -92,10 +92,28 @@ output "docs_complex_id" {
 ## Data Sources
 
 - **[proquint](./data-sources/proquint)** - Pronounceable quintet identifiers
+- **[proquint_big](./data-sources/proquint_big)** - Large integer and SHA-256 encoding
 - **[proquint_canonical](./data-sources/proquint_canonical)** - IPv4/integer encoding
 - **[nanoid](./data-sources/nanoid)** - URL-safe unique identifiers
 - **[random_word](./data-sources/random_word)** - Dictionary-based words
 - **[templated](./data-sources/templated)** - Combine multiple ID types
+
+### SHA-256 as Proquint
+
+Use `idgen_proquint_big` when encoding values larger than uint64, such as SHA-256 digests.
+
+```terraform
+data "idgen_proquint_big" "sha256_upper_bound" {
+  length = 95
+  seed   = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+}
+
+output "sha256_upper_bound" {
+  value = data.idgen_proquint_big.sha256_upper_bound.id
+}
+```
+
+You can provide the same hex seed with or without `0x`; both forms are treated identically.
 
 ## Configuration
 

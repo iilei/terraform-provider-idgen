@@ -3,8 +3,11 @@ package idgen
 import (
 	"encoding/binary"
 	"hash/fnv"
+	"math/big"
 	"net"
 	"testing"
+
+	"github.com/syrupyy/proquint"
 )
 
 func TestStringToSeed(t *testing.T) {
@@ -277,5 +280,80 @@ func TestStringToSeed_IPv4Conversion(t *testing.T) {
 				t.Errorf("StringToSeed(%q) shouldDirectEncode = false, want true", tc.ipv4)
 			}
 		})
+	}
+}
+
+func TestStringToSeedBigInt(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		direct bool
+	}{
+		{name: "ipv4", input: "127.0.0.1", direct: true},
+		{name: "uint32", input: "42", direct: true},
+		{name: "large integer", input: "4294967296", direct: false},
+		{name: "negative integer", input: "-1", direct: false},
+		{name: "hashed string", input: "hello world", direct: false},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			seed, direct := StringToSeedBigInt(tc.input)
+			if seed == nil {
+				t.Fatal("StringToSeedBigInt returned nil seed")
+			}
+			if direct != tc.direct {
+				t.Fatalf("StringToSeedBigInt(%q) direct = %v, want %v", tc.input, direct, tc.direct)
+			}
+		})
+	}
+}
+
+func TestGenerateProquintBigInt(t *testing.T) {
+	seed := big.NewInt(0)
+	seed.SetString("28852105539445366877964448497722252299143518117199161105822405947883537306571", 10)
+
+	tests := []struct {
+		name   string
+		length int
+	}{
+		{
+			name:   "exact length",
+			length: 32,
+		},
+		{
+			name:   "zero padded",
+			length: 34,
+		},
+		{
+			name:   "truncated",
+			length: 16,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			expectedBytes := seed.Bytes()
+			if tc.length < len(expectedBytes) {
+				expectedBytes = expectedBytes[len(expectedBytes)-tc.length:]
+			} else if tc.length > len(expectedBytes) {
+				padded := make([]byte, tc.length)
+				copy(padded[tc.length-len(expectedBytes):], expectedBytes)
+				expectedBytes = padded
+			}
+
+			expected := proquint.EncodeBytes(expectedBytes, "-")
+			got, err := GenerateProquint(tc.length, seed, true)
+			if err != nil {
+				t.Fatalf("GenerateProquint failed: %v", err)
+			}
+			if got != expected {
+				t.Fatalf("GenerateProquint(%d) = %q, want %q", tc.length, got, expected)
+			}
+		})
+	}
+
+	if got, err := GenerateProquint(0, seed, true); err != nil || got != proquint.EncodeBytes(seed.Bytes(), "-") {
+		t.Fatalf("GenerateProquint(length 0) = %q, %v", got, err)
 	}
 }

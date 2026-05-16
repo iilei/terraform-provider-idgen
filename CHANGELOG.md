@@ -1,8 +1,22 @@
 ## [unreleased]
 
+### 🚀 Features
+
+- Encode sha256 via proquint_big
+
 ### 📚 Documentation
 
-- Update changelog
+- Minor rewording on ids vs secrets
+
+### ⚙️ Miscellaneous Tasks
+
+- Update dependencies
+## [1.0.1] - 2026-05-05
+
+### 📚 Documentation
+
+- Scratch notes on early version
+## [1.0.0] - 2026-05-05
 
 ### ⚙️ Miscellaneous Tasks
 
@@ -11,6 +25,11 @@
 - Bump workflows
 - Add test to ensure proquint sha256 compat
 - Correct tf path
+## [0.0.3] - 2025-12-23
+
+### 📚 Documentation
+
+- Update changelog
 ## [0.0.3-pre-01] - 2025-12-23
 
 ### 🚜 Refactor

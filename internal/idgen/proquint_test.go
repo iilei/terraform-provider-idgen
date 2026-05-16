@@ -2,6 +2,7 @@ package idgen
 
 import (
 	"encoding/binary"
+	"math/big"
 	"net"
 	"testing"
 
@@ -41,10 +42,10 @@ func TestProquintCanonicalExamples(t *testing.T) {
 				t.Fatalf("Not a valid IPv4 address: %s", tt.ip)
 			}
 
-			seed := int64(binary.BigEndian.Uint32(ipv4))
+			seed := new(big.Int).SetUint64(uint64(binary.BigEndian.Uint32(ipv4)))
 
 			// Generate proquint with direct encoding
-			result, err := GenerateProquint(0, &seed, true)
+			result, err := GenerateProquint(0, seed, true)
 			if err != nil {
 				t.Fatalf("GenerateProquint failed: %v", err)
 			}
@@ -69,7 +70,8 @@ func TestProquintDirectEncoding(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := GenerateProquint(0, &tt.value, true)
+			seed := big.NewInt(tt.value)
+			result, err := GenerateProquint(0, seed, true)
 			if err != nil {
 				t.Fatalf("GenerateProquint failed: %v", err)
 			}
@@ -83,16 +85,16 @@ func TestProquintDirectEncoding(t *testing.T) {
 
 // TestProquintSeededGeneration tests that seeded random generation is deterministic
 func TestProquintSeededGeneration(t *testing.T) {
-	seed := int64(42)
+	seed := big.NewInt(42)
 	length := 6 // 3 proquint words
 
 	// Generate twice with the same seed
-	result1, err1 := GenerateProquint(length, &seed, false)
+	result1, err1 := GenerateProquint(length, seed, false)
 	if err1 != nil {
 		t.Fatalf("First generation failed: %v", err1)
 	}
 
-	result2, err2 := GenerateProquint(length, &seed, false)
+	result2, err2 := GenerateProquint(length, seed, false)
 	if err2 != nil {
 		t.Fatalf("Second generation failed: %v", err2)
 	}
@@ -102,8 +104,8 @@ func TestProquintSeededGeneration(t *testing.T) {
 	}
 
 	// Different seed should produce different result
-	differentSeed := int64(43)
-	result3, err3 := GenerateProquint(length, &differentSeed, false)
+	differentSeed := big.NewInt(43)
+	result3, err3 := GenerateProquint(length, differentSeed, false)
 	if err3 != nil {
 		t.Fatalf("Third generation failed: %v", err3)
 	}
@@ -137,7 +139,7 @@ func TestProquintUnseeded(t *testing.T) {
 
 // TestDirectEncodingWithNonCanonicalLength tests padding and truncation in direct encoding mode
 func TestDirectEncodingWithNonCanonicalLength(t *testing.T) {
-	seed := int64(2130706433) // 127.0.0.1~>canonical: "lusab-babad" (4 bytes, 11 chars)
+	seed := big.NewInt(2130706433) // 127.0.0.1~>canonical: "lusab-babad" (4 bytes, 11 chars)
 
 	tests := []struct {
 		name       string
@@ -153,7 +155,7 @@ func TestDirectEncodingWithNonCanonicalLength(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := GenerateProquint(tt.byteLength, &seed, true)
+			result, err := GenerateProquint(tt.byteLength, seed, true)
 			if err != nil {
 				t.Fatalf("Generation with byteLength=%d failed: %v", tt.byteLength, err)
 			}
@@ -164,7 +166,10 @@ func TestDirectEncodingWithNonCanonicalLength(t *testing.T) {
 
 			// Verify length matches byte length
 			// Each 2 bytes = 1 word (5 chars), words separated by dash
-			expectedLen := (tt.byteLength / 2 * 5) + (tt.byteLength/2 - 1)
+			expectedLen := 0
+			if tt.byteLength > 0 {
+				expectedLen = (tt.byteLength / 2 * 5) + (tt.byteLength/2 - 1)
+			}
 			if len(result) != expectedLen {
 				t.Errorf("Length mismatch: expected %d chars, got %d", expectedLen, len(result))
 			}
@@ -262,7 +267,7 @@ func TestGenerateSeededBytes_NonMultipleOf8(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Test via GenerateProquint which calls generateSeededBytes
-			result, err := GenerateProquint(tc.length, &tc.seed, false)
+			result, err := GenerateProquint(tc.length, big.NewInt(tc.seed), false)
 			if err != nil {
 				t.Fatalf("GenerateProquint failed: %v", err)
 			}
@@ -273,7 +278,7 @@ func TestGenerateSeededBytes_NonMultipleOf8(t *testing.T) {
 			}
 
 			// Test determinism - same seed should produce same result
-			result2, err2 := GenerateProquint(tc.length, &tc.seed, false)
+			result2, err2 := GenerateProquint(tc.length, big.NewInt(tc.seed), false)
 			if err2 != nil {
 				t.Fatalf("Second GenerateProquint failed: %v", err2)
 			}
@@ -283,8 +288,8 @@ func TestGenerateSeededBytes_NonMultipleOf8(t *testing.T) {
 			}
 
 			// Different seeds should produce different results
-			differentSeed := tc.seed + 1
-			result3, err3 := GenerateProquint(tc.length, &differentSeed, false)
+			differentSeed := big.NewInt(tc.seed + 1)
+			result3, err3 := GenerateProquint(tc.length, differentSeed, false)
 			if err3 != nil {
 				t.Fatalf("Third GenerateProquint failed: %v", err3)
 			}
@@ -310,8 +315,8 @@ func TestGenerateSeededBytes_EdgeCases(t *testing.T) {
 
 	t.Run("large non-multiple of 8", func(t *testing.T) {
 		// Test a larger number that's not a multiple of 8
-		seed := int64(42)
-		result, err := GenerateProquint(23, &seed, false) // 23 = 16 + 7
+		seed := big.NewInt(42)
+		result, err := GenerateProquint(23, seed, false) // 23 = 16 + 7
 		if err != nil {
 			t.Fatalf("GenerateProquint failed: %v", err)
 		}
@@ -321,7 +326,7 @@ func TestGenerateSeededBytes_EdgeCases(t *testing.T) {
 		}
 
 		// Should be deterministic
-		result2, err2 := GenerateProquint(23, &seed, false)
+		result2, err2 := GenerateProquint(23, seed, false)
 		if err2 != nil {
 			t.Fatalf("Second call failed: %v", err2)
 		}
@@ -383,20 +388,93 @@ func TestGenerateProquint_UnseededRandomGeneration(t *testing.T) {
 //	byteLength = (length + 1) / 6 * 2 = (95 + 1) / 6 * 2 = 32 bytes
 //	16 proquint words × 5 chars + 15 dashes = 95 chars
 func TestProquintLength95RepresentsSHA256(t *testing.T) {
-	// SHA-256("abc") = 0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad
-	const expected = "ronum-dipuz-musad-suzop-hajad-hagiv-jukov-famog-rabag-kakog-nimil-lopis-ribib-zutod-zamab-dikot"
-	digest := []byte{
-		0xba, 0x78, 0x16, 0xbf, 0x8f, 0x01, 0xcf, 0xea,
-		0x41, 0x41, 0x40, 0xde, 0x5d, 0xae, 0x22, 0x23,
-		0xb0, 0x03, 0x61, 0xa3, 0x96, 0x17, 0x7a, 0x9c,
-		0xb4, 0x10, 0xff, 0x61, 0xf2, 0x00, 0x15, 0xad,
-	}
-	// digest is 32 bytes — exactly the 32 bytes a 95-char proquint encodes
+	const expected = "guzan-ripan-hikit-lavaz-mufam-pavoh-mopon-vasuj-hamad-kotup-hadif-vabad-popoj-girus-pitam-dazar"
 
-	result := proquint.EncodeBytes(digest, "-")
+	// Convert the large integer to 32 bytes
+	// Input: 28852105539445366877964448497722252299143518117199161105822405947883537306571
+	// see: https://github.com/iilei/phonid/blob/master/public_presets/.proquint-sha256.phonidrc.toml
+	bigInt := new(big.Int)
+	bigInt.SetString("28852105539445366877964448497722252299143518117199161105822405947883537306571", 10)
+
+	// Convert to 32 bytes (256 bits)
+	bytes := bigInt.Bytes()
+	if len(bytes) > 32 {
+		t.Fatalf("integer too large for 32 bytes")
+	}
+
+	// Pad with leading zeros if necessary
+	if len(bytes) < 32 {
+		paddedBytes := make([]byte, 32)
+		copy(paddedBytes[32-len(bytes):], bytes)
+		bytes = paddedBytes
+	}
+
+	result := proquint.EncodeBytes(bytes, "-")
 
 	if len(result) != 95 {
-		t.Errorf("expected 95-char proquint for 32-byte SHA-256 digest, got %d chars: %s", len(result), result)
+		t.Errorf("expected 95-char proquint for 32-byte input, got %d chars: %s", len(result), result)
+	}
+
+	if result != expected {
+		t.Errorf("expected %s, got %s", expected, result)
+	}
+}
+
+func TestProquintLength95RepresentsSHA256WithLowerBoundary(t *testing.T) {
+	const expected = "babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab"
+
+	// Convert the small integer to 32 bytes
+	bigInt := new(big.Int)
+	bigInt.SetString("0", 10)
+
+	// Convert to 32 bytes (256 bits)
+	bytes := bigInt.Bytes()
+	if len(bytes) > 32 {
+		t.Fatalf("integer too large for 32 bytes")
+	}
+
+	// Pad with leading zeros if necessary
+	if len(bytes) < 32 {
+		paddedBytes := make([]byte, 32)
+		copy(paddedBytes[32-len(bytes):], bytes)
+		bytes = paddedBytes
+	}
+
+	result := proquint.EncodeBytes(bytes, "-")
+
+	if len(result) != 95 {
+		t.Errorf("expected 95-char proquint for 32-byte input, got %d chars: %s", len(result), result)
+	}
+
+	if result != expected {
+		t.Errorf("expected %s, got %s", expected, result)
+	}
+}
+
+func TestProquintLength95RepresentsSHA256WithUpperBoundary(t *testing.T) {
+	const expected = "zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz"
+
+	// Convert the large integer to 32 bytes
+	bigInt := new(big.Int)
+	bigInt.SetString("115792089237316195423570985008687907853269984665640564039457584007913129639935", 10)
+
+	// Convert to 32 bytes (256 bits)
+	bytes := bigInt.Bytes()
+	if len(bytes) > 32 {
+		t.Fatalf("integer too large for 32 bytes")
+	}
+
+	// Pad with leading zeros if necessary
+	if len(bytes) < 32 {
+		paddedBytes := make([]byte, 32)
+		copy(paddedBytes[32-len(bytes):], bytes)
+		bytes = paddedBytes
+	}
+
+	result := proquint.EncodeBytes(bytes, "-")
+
+	if len(result) != 95 {
+		t.Errorf("expected 95-char proquint for 32-byte input, got %d chars: %s", len(result), result)
 	}
 
 	if result != expected {
