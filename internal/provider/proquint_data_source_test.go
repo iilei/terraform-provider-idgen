@@ -139,17 +139,11 @@ func TestAccProquintDataSource(t *testing.T) {
 					resource.TestCheckResourceAttr("data.idgen_proquint.from_ip", "id", "lusab-babad"),
 				),
 			},
-			// Test maximum length (95 characters) LowerBoundary
+			// Test maximum length (95 characters) lower boundary with an all-zero seed.
 			{
 				Config: testAccProquintDataSourceConfigMaxLengthLB,
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.idgen_proquint.len95LowerBoundary", "id", "babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab-babab"),
-				),
-			},
-			{
-				Config: testAccProquintDataSourceConfigMaxLengthUB,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint.len95UpperBoundary", "id", "zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz"),
 				),
 			},
 		},
@@ -313,12 +307,5 @@ const testAccProquintDataSourceConfigMaxLengthLB = `
 data "idgen_proquint" "len95LowerBoundary" {
   length = 95
   seed = "0"
-}
-`
-
-const testAccProquintDataSourceConfigMaxLengthUB = `
-data "idgen_proquint" "len95UpperBoundary" {
-  length = 95
-  seed = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
 }
 `

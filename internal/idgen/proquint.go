@@ -53,6 +53,14 @@ func canonicalBigIntBytes(seed *big.Int) []byte {
 	return seed.Bytes()
 }
 
+func seededUint64(seed *big.Int) uint64 {
+	if seed == nil {
+		return 0
+	}
+
+	return uint64(seed.Int64())
+}
+
 func generateRandomBytes(length int) []byte {
 	// Use global math/rand/v2 for non-cryptographic random generation
 	bytes := make([]byte, length)
@@ -98,7 +106,7 @@ func GenerateProquint(byteLength int, seed *big.Int, directEncode bool) (string,
 		}
 	} else if seed != nil {
 		// Seeded random generation
-		bytes = generateSeededBytes(new(big.Int).Abs(seed).Uint64(), byteLength)
+		bytes = generateSeededBytes(seededUint64(seed), byteLength)
 	} else {
 		// Unseeded: math/rand/v2 (non-cryptographic)
 		bytes = generateRandomBytes(byteLength)
