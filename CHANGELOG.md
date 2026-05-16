@@ -11,6 +11,8 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Update dependencies
+- Bump pre-commit hooks
+- Update documented version
 ## [1.0.1] - 2026-05-05
 
 ### 📚 Documentation

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     idgen = {
       source  = "iilei/idgen"
-      version = "0.0.3"
+      version = "1.0.1"
     }
   }
 }
