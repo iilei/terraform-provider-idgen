@@ -20,9 +20,13 @@ repos:
         args: ['--fix=lf']
 
   - repo: https://github.com/golangci/golangci-lint
-    rev: v2.12.2
+    rev: v2.15.0 # keep in sync with the version CI resolves for "latest"
     hooks:
       - id: golangci-lint-full
+        # Build with the project's Go (go.mod / mise.toml) rather than a Go
+        # toolchain downloaded by pre-commit, which may be too old to read
+        # the export data of the standard library.
+        language_version: system
 
   - repo: local
     hooks:
