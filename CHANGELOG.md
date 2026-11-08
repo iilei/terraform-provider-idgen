@@ -1,18 +1,31 @@
-## [unreleased]
+## [1.1.0] - 2026-11-08
 
 ### 🚀 Features
 
 - Encode sha256 via proquint_big
+- *(proquint_big)* Explicit seed_format, reject negatives, warn on truncation
+
+### 🐛 Bug Fixes
+
+- *(deps)* Build with Go 1.27.3 and update vulnerable modules (#40)
+- Keep previous behavior with uint64
+- *(proquint)* Keep v1.0.1 seed handling for idgen_proquint
 
 ### 📚 Documentation
 
 - Minor rewording on ids vs secrets
 
+### 🎨 Styling
+
+- Satisfy the stricter golangci-lint configuration
+
 ### ⚙️ Miscellaneous Tasks
 
+- Sign releases with dedicated signing subkey E47E882C7D4400F1 (#41)
 - Update dependencies
 - Bump pre-commit hooks
 - Update documented version
+- *(lint)* Adopt canned-schedules golangci config, fix pre-commit hook
 ## [1.0.1] - 2026-05-05
 
 ### 📚 Documentation
