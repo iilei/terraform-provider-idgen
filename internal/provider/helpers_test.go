@@ -369,7 +369,11 @@ func TestValidateLength(t *testing.T) {
 
 			if tt.errorMessage != "" && len(diags.Errors()) > 0 {
 				if !strings.Contains(diags.Errors()[0].Summary(), tt.errorMessage) {
-					t.Errorf("validateLength() error message = %q, want to contain %q", diags.Errors()[0].Summary(), tt.errorMessage)
+					t.Errorf(
+						"validateLength() error message = %q, want to contain %q",
+						diags.Errors()[0].Summary(),
+						tt.errorMessage,
+					)
 				}
 			}
 		})

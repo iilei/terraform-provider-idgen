@@ -9,6 +9,35 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
+const testAccProquintBigDataSourceConfigSHA256HexMin = `
+data "idgen_proquint_big" "test_min" {
+  length = 95
+  seed   = "0000000000000000000000000000000000000000000000000000000000000000"
+}
+`
+
+const testAccProquintBigDataSourceConfigSHA256HexMax = `
+data "idgen_proquint_big" "test_max" {
+  length = 95
+  seed   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+}
+`
+
+const testAccProquintBigDataSourceConfigSHA256HexPrefixEquivalence = `
+data "idgen_proquint_big" "with_prefix" {
+	length = 95
+	seed   = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+}
+
+data "idgen_proquint_big" "without_prefix" {
+	length = 95
+	seed   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+}
+`
+
+// SHA-256("abc"), as produced by Terraform's sha256() function (lowercase hex, no prefix).
+const sha256ABCProquint = "ronum-dipuz-musad-suzop-hajad-hagiv-jukov-famog-rabag-kakog-nimil-lopis-ribib-zutod-zamab-dikot"
+
 func TestAccProquintBigDataSource_SHA256HexMin(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -83,7 +112,11 @@ func TestAccProquintBigDataSource_SHA256HexPrefixEquivalence(t *testing.T) {
 						idWithout := withoutPrefix.Primary.Attributes["id"]
 
 						if idWith != idWithout {
-							return fmt.Errorf("expected equivalent ids for 0x-prefixed and non-prefixed hex seeds, got %q and %q", idWith, idWithout)
+							return fmt.Errorf(
+								"expected equivalent ids for 0x-prefixed and non-prefixed hex seeds, got %q and %q",
+								idWith,
+								idWithout,
+							)
 						}
 
 						return nil
@@ -93,35 +126,6 @@ func TestAccProquintBigDataSource_SHA256HexPrefixEquivalence(t *testing.T) {
 		},
 	})
 }
-
-const testAccProquintBigDataSourceConfigSHA256HexMin = `
-data "idgen_proquint_big" "test_min" {
-  length = 95
-  seed   = "0000000000000000000000000000000000000000000000000000000000000000"
-}
-`
-
-const testAccProquintBigDataSourceConfigSHA256HexMax = `
-data "idgen_proquint_big" "test_max" {
-  length = 95
-  seed   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-}
-`
-
-const testAccProquintBigDataSourceConfigSHA256HexPrefixEquivalence = `
-data "idgen_proquint_big" "with_prefix" {
-	length = 95
-	seed   = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-}
-
-data "idgen_proquint_big" "without_prefix" {
-	length = 95
-	seed   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
-}
-`
-
-// SHA-256("abc"), as produced by Terraform's sha256() function (lowercase hex, no prefix).
-const sha256ABCProquint = "ronum-dipuz-musad-suzop-hajad-hagiv-jukov-famog-rabag-kakog-nimil-lopis-ribib-zutod-zamab-dikot"
 
 func TestAccProquintBigDataSource_Formats(t *testing.T) {
 	resource.Test(t, resource.TestCase{
@@ -170,7 +174,11 @@ data "idgen_proquint_big" "truncated" {
 					resource.TestCheckResourceAttr("data.idgen_proquint_big.digits_hex", "id", "babab-babib"),
 					resource.TestCheckResourceAttr("data.idgen_proquint_big.digits_decimal", "id", "babab-babap"),
 					resource.TestCheckResourceAttr("data.idgen_proquint_big.prefixed_no_letters", "id", "babab-babib"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_big.truncated", "id", "ribib-zutod-zamab-dikot"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_big.truncated",
+						"id",
+						"ribib-zutod-zamab-dikot",
+					),
 				),
 			},
 		},
@@ -195,7 +203,10 @@ func TestAccProquintBigDataSource_InvalidSeeds(t *testing.T) {
 				ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 				Steps: []resource.TestStep{
 					{
-						Config:      fmt.Sprintf("data \"idgen_proquint_big\" \"test\" {\n  length = 11\n  %s\n}\n", tc.attrs),
+						Config: fmt.Sprintf(
+							"data \"idgen_proquint_big\" \"test\" {\n  length = 11\n  %s\n}\n",
+							tc.attrs,
+						),
 						ExpectError: regexp.MustCompile(tc.err),
 					},
 				},

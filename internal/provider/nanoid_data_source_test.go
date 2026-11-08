@@ -6,6 +6,52 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
+const testAccNanoIDDataSourceConfig = `
+data "idgen_nanoid" "test" {}
+`
+
+const testAccNanoIDDataSourceConfigCustomLength = `
+data "idgen_nanoid" "test" {
+  length = 10
+  seed   = "42"
+}
+`
+
+const testAccNanoIDDataSourceConfigSeeded = `
+data "idgen_nanoid" "test" {
+  length   = 12
+  alphabet = "numeric"
+  seed     = "42"
+}
+`
+
+const testAccNanoIDDataSourceConfigGrouped = `
+data "idgen_nanoid" "test" {
+  length     = 12
+  group_size = 4
+  alphabet   = "alphanumeric"
+  seed       = "42"
+}
+`
+
+const testAccNanoIDDataSourceConfigReadableAlphabet = `
+data "idgen_nanoid" "test" {
+  length     = 12
+  group_size = 4
+  alphabet   = "readable"
+  seed       = "42"
+}
+`
+
+const testAccNanoIDDataSourceConfigDashInAlphabet = `
+data "idgen_nanoid" "test" {
+  length     = 9
+  group_size = 4
+  alphabet   = "abc-def"  # Dash in alphabet + grouping = potential confusion
+  seed       = "42"
+}
+`
+
 func TestAccNanoIDDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -45,43 +91,6 @@ func TestAccNanoIDDataSource(t *testing.T) {
 	})
 }
 
-const testAccNanoIDDataSourceConfig = `
-data "idgen_nanoid" "test" {}
-`
-
-const testAccNanoIDDataSourceConfigCustomLength = `
-data "idgen_nanoid" "test" {
-  length = 10
-  seed   = "42"
-}
-`
-
-const testAccNanoIDDataSourceConfigSeeded = `
-data "idgen_nanoid" "test" {
-  length   = 12
-  alphabet = "numeric"
-  seed     = "42"
-}
-`
-
-const testAccNanoIDDataSourceConfigGrouped = `
-data "idgen_nanoid" "test" {
-  length     = 12
-  group_size = 4
-  alphabet   = "alphanumeric"
-  seed       = "42"
-}
-`
-
-const testAccNanoIDDataSourceConfigReadableAlphabet = `
-data "idgen_nanoid" "test" {
-  length     = 12
-  group_size = 4
-  alphabet   = "readable"
-  seed       = "42"
-}
-`
-
 func TestAccNanoIDDataSource_DashInAlphabet(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:                 func() { testAccPreCheck(t) },
@@ -97,12 +106,3 @@ func TestAccNanoIDDataSource_DashInAlphabet(t *testing.T) {
 		},
 	})
 }
-
-const testAccNanoIDDataSourceConfigDashInAlphabet = `
-data "idgen_nanoid" "test" {
-  length     = 9
-  group_size = 4
-  alphabet   = "abc-def"  # Dash in alphabet + grouping = potential confusion
-  seed       = "42"
-}
-`

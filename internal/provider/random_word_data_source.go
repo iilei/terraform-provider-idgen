@@ -14,10 +14,6 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &RandomWordDataSource{}
 
-func NewRandomWordDataSource() datasource.DataSource {
-	return &RandomWordDataSource{}
-}
-
 // RandomWordDataSource defines the data source implementation.
 type RandomWordDataSource struct{}
 
@@ -28,11 +24,26 @@ type RandomWordDataSourceModel struct {
 	Wordlist types.String `tfsdk:"wordlist"`
 }
 
-func (d *RandomWordDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+// NewRandomWordDataSource returns a new random word data source.
+func NewRandomWordDataSource() datasource.DataSource {
+	return &RandomWordDataSource{}
+}
+
+// Metadata returns the data source type name.
+func (d *RandomWordDataSource) Metadata(
+	ctx context.Context,
+	req datasource.MetadataRequest,
+	resp *datasource.MetadataResponse,
+) {
 	resp.TypeName = req.ProviderTypeName + "_random_word"
 }
 
-func (d *RandomWordDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+// Schema defines the data source attributes.
+func (d *RandomWordDataSource) Schema(
+	ctx context.Context,
+	req datasource.SchemaRequest,
+	resp *datasource.SchemaResponse,
+) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Generates a random word identifier\n\n" +
 			"**Important:** The bundled word list contains only 20 five-letter words, providing limited randomness. " +
@@ -40,11 +51,11 @@ func (d *RandomWordDataSource) Schema(ctx context.Context, req datasource.Schema
 			"for the reasons described in the [word list philosophy](https://github.com/iilei/terraform-provider-idgen/tree/master/internal/data/five_letter_words.txt). " +
 			"For more control, provide your own custom `wordlist` with sufficient entropy for your needs.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			attrID: schema.StringAttribute{
 				Description: "The generated RandomWord.",
 				Computed:    true,
 			},
-			"seed": schema.StringAttribute{
+			attrSeed: schema.StringAttribute{
 				MarkdownDescription: "Optional seed for deterministic word selection. The same seed always produces the same word.\n\n" +
 					"- **Numeric strings** (e.g., `\"1\"`, `\"2\"`, `\"3\"`) - Used directly as the index selector, producing words in sequential alphabetical order\n" +
 					"- **Non-numeric strings** (e.g., `\"sha256:2d711...\"`, `\"sha256:a1fce...\"`) - Hashed to produce a distributed index selector for more varied word selection\n" +
@@ -62,11 +73,16 @@ func (d *RandomWordDataSource) Schema(ctx context.Context, req datasource.Schema
 	}
 }
 
-func (d *RandomWordDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+// Configure is a no-op: the data source needs no provider configuration.
+func (d *RandomWordDataSource) Configure(
+	ctx context.Context,
+	req datasource.ConfigureRequest,
+	resp *datasource.ConfigureResponse,
+) {
 	// Provider configuration is not needed for this implementation
 }
 
-// parseWordlist parses a comma-separated string into a slice of non-blank words
+// parseWordlist parses a comma-separated string into a slice of non-blank words.
 func parseWordlist(input string) []string {
 	if input == "" {
 		return nil

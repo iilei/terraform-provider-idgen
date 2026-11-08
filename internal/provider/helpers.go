@@ -3,6 +3,7 @@ package provider
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 	"net"
 	"strconv"
 	"strings"
@@ -39,46 +40,38 @@ func stringToCanonicalValue(s string) (uint64, int, string) {
 	// Try parsing as IPv4 address first
 	if ip := net.ParseIP(s); ip != nil {
 		if ipv4 := ip.To4(); ipv4 != nil {
-			return uint64(binary.BigEndian.Uint32(ipv4)), 4, ""
+			return uint64(binary.BigEndian.Uint32(ipv4)), uint32Bytes, ""
 		}
 		// IPv6 not supported - the original proquint specification focuses on 32-bit values
 		// Users must convert IPv6 to its 128-bit integer representation first
 		return 0, 0, "IPv6 addresses are not supported for canonical encoding (convert to integer first)"
 	}
 
-	// Check if it looks like hex (starts with 0x or contains a-f/A-F)
-	lowerS := strings.ToLower(s)
-	isHex := strings.HasPrefix(lowerS, "0x") ||
-		strings.ContainsAny(s, "abcdefABCDEF")
-
-	if isHex {
-		// Try to parse as hexadecimal (with or without 0x prefix)
-		hexStr := s
-		if strings.HasPrefix(lowerS, "0x") {
-			hexStr = s[2:]
-		}
-		if val, err := strconv.ParseUint(hexStr, 16, 64); err == nil {
-			if val <= 0xFFFFFFFF {
-				// uint32 range: 4 bytes~>11 chars (2 proquint words)
-				return val, 4, ""
-			}
-			// uint64 range: 8 bytes~>23 chars (4 proquint words)
-			return val, 8, ""
-		}
-	} else {
-		// Try to parse as decimal integer
-		if val, err := strconv.ParseUint(s, 10, 64); err == nil {
-			if val <= 0xFFFFFFFF {
-				// uint32 range: 4 bytes~>11 chars (2 proquint words)
-				return val, 4, ""
-			}
-			// uint64 range: 8 bytes~>23 chars (4 proquint words)
-			return val, 8, ""
-		}
+	// Hex if it starts with 0x or contains a-f/A-F, decimal otherwise.
+	digits, base := s, 10
+	if strings.HasPrefix(strings.ToLower(s), "0x") {
+		digits, base = s[2:], 16
+	} else if strings.ContainsAny(s, "abcdefABCDEF") {
+		base = 16
 	}
 
-	// Not a valid canonical value
-	return 0, 0, "value must be an IPv4 address, hexadecimal string (e.g., 0x7f000001), or unsigned integer (0-18446744073709551615)"
+	val, err := strconv.ParseUint(digits, base, 64)
+	if err != nil {
+		return 0, 0, "value must be an IPv4 address, hexadecimal string (e.g., 0x7f000001), " +
+			"or unsigned integer (0-18446744073709551615)"
+	}
+
+	// uint32 range: 4 bytes~>11 chars (2 proquint words); uint64 range: 8 bytes~>23 chars (4 words)
+	if val <= math.MaxUint32 {
+		return val, uint32Bytes, ""
+	}
+	return val, uint64Bytes, ""
+}
+
+// proquintByteLength converts a requested proquint length in characters to the number of
+// bytes to encode: (length + 1) / 6 words of 2 bytes each, at least one word.
+func proquintByteLength(length int64) int {
+	return max(int((length+1)/proquintCharsPerWord*proquintBytesPerWord), proquintBytesPerWord)
 }
 
 // validateLength validates the requested ID length and returns appropriate diagnostics.
@@ -101,7 +94,11 @@ func validateLength(length int64, diags *diag.Diagnostics) bool {
 	if length > WarnIDLength {
 		diags.AddWarning(
 			"Unusually long ID",
-			fmt.Sprintf("The requested length exceeds %d characters. While withthin the limit up to %d, very long IDs may impact performance and readability.", WarnIDLength, MaxIDLength),
+			fmt.Sprintf(
+				"The requested length exceeds %d characters. While withthin the limit up to %d, very long IDs may impact performance and readability.",
+				WarnIDLength,
+				MaxIDLength,
+			),
 		)
 	}
 	return true

@@ -2,6 +2,9 @@ package provider
 
 import "testing"
 
+// max256 is 2^256-1, the largest SHA-256 digest, in decimal.
+const max256 = "115792089237316195423570985008687907853269984665640564039457584007913129639935"
+
 func TestParseBigSeed(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -17,8 +20,7 @@ func TestParseBigSeed(t *testing.T) {
 		{"hex digits only are still hex", "10", seedFormatHex, "16"},
 		{"hex leading zeros", "0000", seedFormatHex, "0"},
 		{"decimal", "10", seedFormatDecimal, "10"},
-		{"decimal 2^256-1", "115792089237316195423570985008687907853269984665640564039457584007913129639935", seedFormatDecimal,
-			"115792089237316195423570985008687907853269984665640564039457584007913129639935"},
+		{"decimal 2^256-1", max256, seedFormatDecimal, max256},
 		{"hex negative", "-ff", seedFormatHex, ""},
 		{"decimal negative", "-5", seedFormatDecimal, ""},
 		{"plus sign", "+5", seedFormatDecimal, ""},

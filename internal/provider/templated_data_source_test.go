@@ -6,47 +6,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 )
 
-func TestAccTemplatedDataSource(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			// Test basic template with proquint and nanoid
-			{
-				Config: testAccTemplatedDataSourceConfigBasic,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "babab-babad-babab-babab-h84H"),
-					// Just verify it's set and has expected structure
-				),
-			},
-			// Test template with random_word
-			{
-				Config: testAccTemplatedDataSourceConfigWithWord,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "apple-kufal-zotib"),
-				),
-			},
-			// Test template with all ID types combined
-			{
-				Config: testAccTemplatedDataSourceConfigAllTypes,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "lusab-babad.kufal-zotib.h84-Hs2-ML8-SW.apple"),
-				),
-			},
-			// Test template functions with piping
-			{
-				Config: testAccTemplatedDataSourceConfigWithFunctions,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "KUFAL_ZOTIB_:apfel-:apfel-"),
-				),
-			},
-		},
-	})
-}
-
 const testAccTemplatedDataSourceConfigBasic = `
 data "idgen_templated" "test" {
   template = "{{ .proquint_canonical }}-{{ .nanoid }}"
@@ -124,22 +83,6 @@ data "idgen_templated" "test" {
 }
 `
 
-func TestAccTemplatedDataSourcePerDocs(t *testing.T) {
-	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
-		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
-		Steps: []resource.TestStep{
-			{
-				Config: testAccTemplatedDataSourcePerDocs,
-				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
-					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "rovif-tahad-WNbg-elfin"),
-				),
-			},
-		},
-	})
-}
-
 const testAccTemplatedDataSourcePerDocs = `
 data "idgen_templated" "test" {
   template = "{{ .proquint }}-{{ .nanoid }}-{{ .random_word }}"
@@ -159,3 +102,64 @@ data "idgen_templated" "test" {
   }
 }
 `
+
+func TestAccTemplatedDataSource(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			// Test basic template with proquint and nanoid
+			{
+				Config: testAccTemplatedDataSourceConfigBasic,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "babab-babad-babab-babab-h84H"),
+					// Just verify it's set and has expected structure
+				),
+			},
+			// Test template with random_word
+			{
+				Config: testAccTemplatedDataSourceConfigWithWord,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "apple-kufal-zotib"),
+				),
+			},
+			// Test template with all ID types combined
+			{
+				Config: testAccTemplatedDataSourceConfigAllTypes,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_templated.test",
+						"id",
+						"lusab-babad.kufal-zotib.h84-Hs2-ML8-SW.apple",
+					),
+				),
+			},
+			// Test template functions with piping
+			{
+				Config: testAccTemplatedDataSourceConfigWithFunctions,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "KUFAL_ZOTIB_:apfel-:apfel-"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccTemplatedDataSourcePerDocs(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccTemplatedDataSourcePerDocs,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttrSet("data.idgen_templated.test", "id"),
+					resource.TestCheckResourceAttr("data.idgen_templated.test", "id", "rovif-tahad-WNbg-elfin"),
+				),
+			},
+		},
+	})
+}

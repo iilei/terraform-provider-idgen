@@ -71,7 +71,11 @@ func TestAccProquintCanonicalDataSource_Uint32(t *testing.T) {
 				Config: testAccProquintCanonicalDataSourceConfig_Uint32("4294967296"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "4294967296"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "babab-babad-babab-babab"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"id",
+						"babab-babad-babab-babab",
+					),
 				),
 			},
 		},
@@ -87,21 +91,37 @@ func TestAccProquintCanonicalDataSource_Uint64(t *testing.T) {
 				Config: testAccProquintCanonicalDataSourceConfig_Uint32("4294967296"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "4294967296"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "babab-babad-babab-babab"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"id",
+						"babab-babad-babab-babab",
+					),
 				),
 			},
 			{
 				Config: testAccProquintCanonicalDataSourceConfig_Uint32("9223372036854775807"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "9223372036854775807"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "luzuz-zuzuz-zuzuz-zuzuz"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"id",
+						"luzuz-zuzuz-zuzuz-zuzuz",
+					),
 				),
 			},
 			{
 				Config: testAccProquintCanonicalDataSourceConfig_Uint32("18446744073709551615"),
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "18446744073709551615"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "zuzuz-zuzuz-zuzuz-zuzuz"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"seed",
+						"18446744073709551615",
+					),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"id",
+						"zuzuz-zuzuz-zuzuz-zuzuz",
+					),
 				),
 			},
 		},
@@ -138,7 +158,11 @@ func TestAccProquintCanonicalDataSource_Hexadecimal(t *testing.T) {
 				Config: testAccProquintCanonicalDataSourceConfig_Uint32("0x7fffffffffffffff"),
 				Check: resource.ComposeAggregateTestCheckFunc(
 					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "seed", "0x7fffffffffffffff"),
-					resource.TestCheckResourceAttr("data.idgen_proquint_canonical.test", "id", "luzuz-zuzuz-zuzuz-zuzuz"),
+					resource.TestCheckResourceAttr(
+						"data.idgen_proquint_canonical.test",
+						"id",
+						"luzuz-zuzuz-zuzuz-zuzuz",
+					),
 				),
 			},
 		},

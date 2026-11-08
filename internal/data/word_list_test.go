@@ -31,7 +31,12 @@ func TestFiveLetterWords(t *testing.T) {
 		// Verify list is sorted
 		for i := 1; i < len(FiveLetterWords); i++ {
 			if FiveLetterWords[i-1] >= FiveLetterWords[i] {
-				t.Errorf("FiveLetterWords not sorted: %q >= %q at index %d", FiveLetterWords[i-1], FiveLetterWords[i], i-1)
+				t.Errorf(
+					"FiveLetterWords not sorted: %q >= %q at index %d",
+					FiveLetterWords[i-1],
+					FiveLetterWords[i],
+					i-1,
+				)
 			}
 		}
 	})

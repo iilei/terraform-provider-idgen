@@ -14,10 +14,6 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &ProquintCanonicalDataSource{}
 
-func NewProquintCanonicalDataSource() datasource.DataSource {
-	return &ProquintCanonicalDataSource{}
-}
-
 // ProquintCanonicalDataSource defines the data source implementation.
 type ProquintCanonicalDataSource struct{}
 
@@ -27,11 +23,26 @@ type ProquintCanonicalDataSourceModel struct {
 	Seed types.String `tfsdk:"seed"`
 }
 
-func (d *ProquintCanonicalDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+// NewProquintCanonicalDataSource returns a new canonical Proquint data source.
+func NewProquintCanonicalDataSource() datasource.DataSource {
+	return &ProquintCanonicalDataSource{}
+}
+
+// Metadata returns the data source type name.
+func (d *ProquintCanonicalDataSource) Metadata(
+	ctx context.Context,
+	req datasource.MetadataRequest,
+	resp *datasource.MetadataResponse,
+) {
 	resp.TypeName = req.ProviderTypeName + "_proquint_canonical"
 }
 
-func (d *ProquintCanonicalDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+// Schema defines the data source attributes.
+func (d *ProquintCanonicalDataSource) Schema(
+	ctx context.Context,
+	req datasource.SchemaRequest,
+	resp *datasource.SchemaResponse,
+) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Generates a canonical Proquint identifier from an IPv4 address or unsigned integer.\n\n" +
 			"This data source implements the canonical proquint encoding as described in the " +
@@ -51,13 +62,13 @@ func (d *ProquintCanonicalDataSource) Schema(ctx context.Context, req datasource
 			"They should not be used for security tokens or secrets.",
 
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			attrID: schema.StringAttribute{
 				MarkdownDescription: "The generated canonical Proquint identifier. Length varies by input:\n\n" +
 					"- 11 characters for 32-bit values (IPv4, uint32)\n" +
 					"- 23 characters for 64-bit values (uint64)",
 				Computed: true,
 			},
-			"seed": schema.StringAttribute{
+			attrSeed: schema.StringAttribute{
 				MarkdownDescription: "The seed value to encode as a proquint. Accepts:\n\n" +
 					"- **IPv4 address** (e.g., `127.0.0.1`)~>11 chars\n" +
 					"- **Hexadecimal string** (e.g., `0x7f000001` or `7f000001`)~>11 or 23 chars\n" +
@@ -78,11 +89,20 @@ func (d *ProquintCanonicalDataSource) Schema(ctx context.Context, req datasource
 	}
 }
 
-func (d *ProquintCanonicalDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+// Configure is a no-op: the data source needs no provider configuration.
+func (d *ProquintCanonicalDataSource) Configure(
+	ctx context.Context,
+	req datasource.ConfigureRequest,
+	resp *datasource.ConfigureResponse,
+) {
 	// Provider configuration is not needed for this implementation
 }
 
-func (d *ProquintCanonicalDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+func (d *ProquintCanonicalDataSource) Read(
+	ctx context.Context,
+	req datasource.ReadRequest,
+	resp *datasource.ReadResponse,
+) {
 	var data ProquintCanonicalDataSourceModel
 
 	// Read Terraform configuration data into the model

@@ -10,24 +10,35 @@ import (
 	"github.com/syrupyy/proquint"
 )
 
-func generateSeededBytes(seed uint64, length int) []byte {
-	rng := mathrand.New(mathrand.NewPCG(seed, seed))
-	bytes := make([]byte, length)
+const (
+	uint32Bytes = 4
+	uint64Bytes = 8
+	uint32Bits  = 32
+	uint64Bits  = 64
+)
 
-	for i := 0; i < length; i += 8 {
-		val := rng.Uint64()
-		remaining := length - i
-		if remaining >= 8 {
-			binary.LittleEndian.PutUint64(bytes[i:], val)
-		} else {
-			// Handle remaining bytes
-			temp := make([]byte, 8)
-			binary.LittleEndian.PutUint64(temp, val)
-			copy(bytes[i:], temp[:remaining])
-		}
+// fillUint64s returns length bytes taken from successive little-endian uint64 values of next.
+func fillUint64s(length int, next func() uint64) []byte {
+	bytes := make([]byte, length)
+	var word [uint64Bytes]byte
+
+	for i := 0; i < length; i += uint64Bytes {
+		binary.LittleEndian.PutUint64(word[:], next())
+		copy(bytes[i:], word[:])
 	}
 
 	return bytes
+}
+
+func generateSeededBytes(seed uint64, length int) []byte {
+	// Deterministic, non-cryptographic generation is the point of a seed.
+	rng := mathrand.New(mathrand.NewPCG(seed, seed)) //nolint:gosec // seeded IDs must be reproducible
+	return fillUint64s(length, rng.Uint64)
+}
+
+func generateRandomBytes(length int) []byte {
+	// IDs are documented as not cryptographically secure; see the provider's security notice.
+	return fillUint64s(length, mathrand.Uint64)
 }
 
 func canonicalBigIntBytes(seed *big.Int) []byte {
@@ -35,23 +46,19 @@ func canonicalBigIntBytes(seed *big.Int) []byte {
 		return nil
 	}
 
-	if seed.Sign() == 0 {
-		return make([]byte, 4)
+	var size int
+	switch bits := seed.BitLen(); {
+	case bits <= uint32Bits:
+		size = uint32Bytes
+	case bits <= uint64Bits:
+		size = uint64Bytes
+	default:
+		return seed.Bytes()
 	}
 
-	if seed.BitLen() <= 32 {
-		bytes := make([]byte, 4)
-		seed.FillBytes(bytes)
-		return bytes
-	}
-
-	if seed.BitLen() <= 64 {
-		bytes := make([]byte, 8)
-		seed.FillBytes(bytes)
-		return bytes
-	}
-
-	return seed.Bytes()
+	bytes := make([]byte, size)
+	seed.FillBytes(bytes)
+	return bytes
 }
 
 // seededUint64 reduces a seed to the 64-bit state used by the PCG generator.
@@ -61,41 +68,21 @@ func canonicalBigIntBytes(seed *big.Int) []byte {
 // big-endian bytes, with the sign mixed in) instead of being truncated to their low
 // 64 bits, which would make e.g. 2^64+1 and 2^65+1 collide.
 func seededUint64(seed *big.Int) uint64 {
-	if seed == nil {
+	switch {
+	case seed == nil:
 		return 0
-	}
-
-	if seed.IsInt64() {
-		return uint64(seed.Int64())
-	}
-
-	if seed.IsUint64() {
+	case seed.IsInt64():
+		return uint64(seed.Int64()) //nolint:gosec // bit reinterpretation, same as the former int64 seed path
+	case seed.IsUint64():
 		return seed.Uint64()
 	}
 
 	h := fnv.New64a()
 	if seed.Sign() < 0 {
-		h.Write([]byte{'-'})
+		_, _ = h.Write([]byte{'-'}) // hash.Hash.Write never returns an error
 	}
-	h.Write(seed.Bytes())
+	_, _ = h.Write(seed.Bytes())
 	return h.Sum64()
-}
-
-func generateRandomBytes(length int) []byte {
-	// Use global math/rand/v2 for non-cryptographic random generation
-	bytes := make([]byte, length)
-	for i := 0; i < length; i += 8 {
-		val := mathrand.Uint64()
-		remaining := length - i
-		if remaining >= 8 {
-			binary.LittleEndian.PutUint64(bytes[i:], val)
-		} else {
-			temp := make([]byte, 8)
-			binary.LittleEndian.PutUint64(temp, val)
-			copy(bytes[i:], temp[:remaining])
-		}
-	}
-	return bytes
 }
 
 // GenerateProquint generates a Proquint ID with the given byte length.
@@ -108,31 +95,32 @@ func generateRandomBytes(length int) []byte {
 func GenerateProquint(byteLength int, seed *big.Int, directEncode bool) (string, error) {
 	var bytes []byte
 
-	if seed != nil && directEncode {
-		// Direct encoding mode: use canonical big-endian encoding for uint32/uint64-sized values.
-		bytes = canonicalBigIntBytes(seed)
-		canonicalByteLength := len(bytes)
-
-		// Adjust to requested byte length if different
-		if byteLength > 0 && byteLength != canonicalByteLength {
-			if byteLength < canonicalByteLength {
-				// Truncate: take the rightmost bytes (least significant)
-				bytes = bytes[canonicalByteLength-byteLength:]
-			} else {
-				// Pad: prepend zero bytes (most significant)
-				bytes = make([]byte, byteLength)
-				copy(bytes[byteLength-canonicalByteLength:], canonicalBigIntBytes(seed))
-			}
-		}
-	} else if seed != nil {
-		// Seeded random generation
+	switch {
+	case seed != nil && directEncode:
+		bytes = fitBytes(canonicalBigIntBytes(seed), byteLength)
+	case seed != nil:
 		bytes = generateSeededBytes(seededUint64(seed), byteLength)
-	} else {
+	default:
 		// Unseeded: math/rand/v2 (non-cryptographic)
 		bytes = generateRandomBytes(byteLength)
 	}
 
 	return proquint.EncodeBytes(bytes, "-"), nil
+}
+
+// fitBytes adjusts big-endian bytes to length: truncation keeps the least significant
+// bytes, padding prepends zeros. A length of 0 or less keeps bytes unchanged.
+func fitBytes(bytes []byte, length int) []byte {
+	switch {
+	case length <= 0 || length == len(bytes):
+		return bytes
+	case length < len(bytes):
+		return bytes[len(bytes)-length:]
+	default:
+		padded := make([]byte, length)
+		copy(padded[length-len(bytes):], bytes)
+		return padded
+	}
 }
 
 // GenerateCanonicalProquint generates a canonical Proquint from a uint64 value.

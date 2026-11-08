@@ -1,3 +1,4 @@
+// Command terraform-provider-idgen serves the idgen Terraform provider.
 package main
 
 import (

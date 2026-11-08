@@ -23,24 +23,33 @@ type bigProquintDataSource struct{}
 type bigProquintDataSourceModel struct {
 	Seed       types.String `tfsdk:"seed"`
 	SeedFormat types.String `tfsdk:"seed_format"`
-	Length     types.Int64  `tfsdk:"length"`
 	ID         types.String `tfsdk:"id"`
+	Length     types.Int64  `tfsdk:"length"`
 }
 
+// NewBigProquintDataSource returns a new idgen_proquint_big data source.
 func NewBigProquintDataSource() datasource.DataSource {
 	return &bigProquintDataSource{}
 }
 
-func (d *bigProquintDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+func (d *bigProquintDataSource) Metadata(
+	ctx context.Context,
+	req datasource.MetadataRequest,
+	resp *datasource.MetadataResponse,
+) {
 	resp.TypeName = "idgen_proquint_big"
 }
 
-func (d *bigProquintDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *bigProquintDataSource) Schema(
+	ctx context.Context,
+	req datasource.SchemaRequest,
+	resp *datasource.SchemaResponse,
+) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Encodes a large unsigned integer, such as a SHA-256 digest, directly as a Proquint ID.\n\n" +
 			"The seed is encoded as big-endian bytes, zero-padded or truncated (keeping the least significant bytes) to fit `length`.",
 		Attributes: map[string]schema.Attribute{
-			"seed": schema.StringAttribute{
+			attrSeed: schema.StringAttribute{
 				MarkdownDescription: "The unsigned integer to encode, as a string. How it is read depends on `seed_format`:\n\n" +
 					"- `hex` (default): hexadecimal digits, with or without a `0x` prefix, e.g. the output of Terraform's `sha256()` " +
 					"(`ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`)\n" +
@@ -53,12 +62,12 @@ func (d *bigProquintDataSource) Schema(ctx context.Context, req datasource.Schem
 					"A string of only the digits 0-9 is valid in both formats with different values, so the format is never guessed.",
 				Optional: true,
 			},
-			"length": schema.Int64Attribute{
+			attrLength: schema.Int64Attribute{
 				MarkdownDescription: "The output length in characters. For SHA-256-sized values (32 bytes), use `95` characters. " +
 					"If the seed needs more bytes than `length` provides, the most significant bytes are dropped and a warning is emitted.",
 				Required: true,
 			},
-			"id": schema.StringAttribute{
+			attrID: schema.StringAttribute{
 				MarkdownDescription: "The generated Proquint ID.",
 				Computed:            true,
 			},
@@ -108,10 +117,7 @@ func (d *bigProquintDataSource) Read(ctx context.Context, req datasource.ReadReq
 		return
 	}
 
-	byteLength := int((length + 1) / 6 * 2)
-	if byteLength < 2 {
-		byteLength = 2
-	}
+	byteLength := proquintByteLength(length)
 
 	format := seedFormatHex
 	if !data.SeedFormat.IsNull() {

@@ -295,7 +295,7 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 			Seed:     types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -325,7 +325,7 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 			Seed:     types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -356,7 +356,7 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 			Seed:     types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -387,7 +387,7 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 			Seed:     types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -401,7 +401,7 @@ func TestGenerateNanoID_AlphabetCases(t *testing.T) {
 
 		// Test "NUMERIC" as well
 		config.Alphabet = types.StringValue("NUMERIC")
-		result2, err2 := generateNanoID(config, &diags)
+		result2, err2 := generateNanoID(&config, &diags)
 
 		if err2 != nil {
 			t.Fatalf("generateNanoID failed: %v", err2)
@@ -427,7 +427,7 @@ func TestGenerateNanoID_DashWarning(t *testing.T) {
 			Seed:      types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}
@@ -460,7 +460,7 @@ func TestGenerateNanoID_DashWarning(t *testing.T) {
 			Seed:      types.StringValue("test-seed"),
 		}
 
-		result, err := generateNanoID(config, &diags)
+		result, err := generateNanoID(&config, &diags)
 		if err != nil {
 			t.Fatalf("generateNanoID failed: %v", err)
 		}

@@ -2,6 +2,7 @@ package idgen
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"testing"
 )
@@ -134,13 +135,7 @@ func TestGetWordBySeed_NegativeSeedHandling(t *testing.T) {
 				t.Error("Expected non-empty result for negative seed")
 			}
 
-			found := false
-			for _, word := range wordList {
-				if result == word {
-					found = true
-					break
-				}
-			}
+			found := slices.Contains(wordList, result)
 
 			if !found {
 				t.Errorf("Result %q is not in the wordlist %v", result, wordList)
@@ -178,13 +173,7 @@ func TestGetWordBySeed_NegativeIndexCorrection(t *testing.T) {
 		}
 
 		// Verify the result is one of our words
-		validWord := false
-		for _, word := range wordList {
-			if result == word {
-				validWord = true
-				break
-			}
-		}
+		validWord := slices.Contains(wordList, result)
 
 		if !validWord {
 			t.Errorf("GetWordBySeed(%q, %v) returned invalid word: %q", seed, wordList, result)

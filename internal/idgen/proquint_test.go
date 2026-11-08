@@ -83,7 +83,7 @@ func TestProquintDirectEncoding(t *testing.T) {
 	}
 }
 
-// TestProquintSeededGeneration tests that seeded random generation is deterministic
+// TestProquintSeededGeneration tests that seeded random generation is deterministic.
 func TestProquintSeededGeneration(t *testing.T) {
 	seed := big.NewInt(42)
 	length := 6 // 3 proquint words
@@ -115,7 +115,7 @@ func TestProquintSeededGeneration(t *testing.T) {
 	}
 }
 
-// TestProquintUnseeded tests that unseeded generation produces valid output
+// TestProquintUnseeded tests that unseeded generation produces valid output.
 func TestProquintUnseeded(t *testing.T) {
 	length := 6 // 3 proquint words
 
@@ -137,7 +137,7 @@ func TestProquintUnseeded(t *testing.T) {
 	}
 }
 
-// TestDirectEncodingWithNonCanonicalLength tests padding and truncation in direct encoding mode
+// TestDirectEncodingWithNonCanonicalLength tests padding and truncation in direct encoding mode.
 func TestDirectEncodingWithNonCanonicalLength(t *testing.T) {
 	seed := big.NewInt(2130706433) // 127.0.0.1~>canonical: "lusab-babad" (4 bytes, 11 chars)
 
@@ -177,7 +177,7 @@ func TestDirectEncodingWithNonCanonicalLength(t *testing.T) {
 	}
 }
 
-// TestGenerateCanonicalProquint tests the canonical proquint generation for various bit sizes
+// TestGenerateCanonicalProquint tests the canonical proquint generation for various bit sizes.
 func TestGenerateCanonicalProquint(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -214,7 +214,7 @@ func TestGenerateCanonicalProquint(t *testing.T) {
 	}
 }
 
-// TestCanonicalProquintLengths verifies output lengths for different bit sizes
+// TestCanonicalProquintLengths verifies output lengths for different bit sizes.
 func TestCanonicalProquintLengths(t *testing.T) {
 	tests := []struct {
 		byteSize       int

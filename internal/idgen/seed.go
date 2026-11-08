@@ -12,7 +12,7 @@ import (
 // Handles three cases:
 // 1. IPv4 address (e.g., "127.0.0.1") - converts to uint32, directly encoded as bytes
 // 2. Decimal integer in uint32 range (0-4294967295) - directly encoded as bytes (canonical proquint)
-// 3. Arbitrary string or large integer - hashed deterministically, used as random seed
+// 3. Arbitrary string or large integer - hashed deterministically, used as random seed.
 func StringToSeed(s string) (int64, bool) {
 	// Try parsing as IPv4 address first - these should be encoded directly
 	if ip := net.ParseIP(s); ip != nil {
@@ -33,6 +33,6 @@ func StringToSeed(s string) (int64, bool) {
 
 	// Hash the string to get a deterministic seed - used as random seed
 	h := fnv.New64a()
-	h.Write([]byte(s))
-	return int64(h.Sum64()), false
+	_, _ = h.Write([]byte(s))      // hash.Hash.Write never returns an error
+	return int64(h.Sum64()), false //nolint:gosec // bit reinterpretation; the seed only needs to be deterministic
 }

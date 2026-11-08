@@ -6,7 +6,7 @@ import (
 	"github.com/iilei/terraform-provider-idgen/internal/data"
 )
 
-// GetWordBySeed returns a random word from the wordlist using a deterministic seed
+// GetWordBySeed returns a random word from the wordlist using a deterministic seed.
 func GetWordBySeed(seed string, wordlist []string) string {
 	// Use default wordlist if none provided
 	if len(wordlist) == 0 {

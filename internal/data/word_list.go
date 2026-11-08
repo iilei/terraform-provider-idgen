@@ -1,3 +1,4 @@
+// Package data holds the embedded word list used for random word IDs.
 package data
 
 import (
@@ -13,6 +14,9 @@ var fiveLetterWords string
 // FiveLetterWords is a predefined word list of common five-letter English words.
 // It is sorted and contains no blank values.
 var FiveLetterWords []string
+
+// WordSet contains every entry of FiveLetterWords, for membership checks.
+var WordSet map[string]struct{}
 
 func init() {
 	wordSet := make(map[string]struct{})
@@ -31,5 +35,3 @@ func init() {
 	}
 	sort.Strings(FiveLetterWords)
 }
-
-var WordSet map[string]struct{}

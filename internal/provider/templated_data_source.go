@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	_ "embed"
+	"maps"
 	"math/big"
 	"strings"
 	"text/template"
@@ -23,10 +24,6 @@ var templateFunctionsDocs string
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &TemplatedDataSource{}
 
-func NewTemplatedDataSource() datasource.DataSource {
-	return &TemplatedDataSource{}
-}
-
 // TemplatedDataSource defines the data source implementation.
 type TemplatedDataSource struct{}
 
@@ -40,45 +37,60 @@ type TemplatedDataSourceModel struct {
 	RandomWord        types.Object `tfsdk:"random_word"`
 }
 
-// ProquintConfig holds configuration for proquint generation
+// ProquintConfig holds configuration for proquint generation.
 type ProquintConfig struct {
-	Length    types.Int64  `tfsdk:"length"`
 	Seed      types.String `tfsdk:"seed"`
+	Length    types.Int64  `tfsdk:"length"`
 	GroupSize types.Int64  `tfsdk:"group_size"`
 }
 
-// ProquintCanonicalConfig holds configuration for canonical proquint generation
+// ProquintCanonicalConfig holds configuration for canonical proquint generation.
 type ProquintCanonicalConfig struct {
 	Seed      types.String `tfsdk:"seed"`
 	GroupSize types.Int64  `tfsdk:"group_size"`
 }
 
-// NanoIDConfig holds configuration for nanoid generation
+// NanoIDConfig holds configuration for nanoid generation.
 type NanoIDConfig struct {
-	Length    types.Int64  `tfsdk:"length"`
 	Seed      types.String `tfsdk:"seed"`
-	GroupSize types.Int64  `tfsdk:"group_size"`
 	Alphabet  types.String `tfsdk:"alphabet"`
+	Length    types.Int64  `tfsdk:"length"`
+	GroupSize types.Int64  `tfsdk:"group_size"`
 }
 
-// RandomWordConfig holds configuration for random word generation
+// RandomWordConfig holds configuration for random word generation.
 type RandomWordConfig struct {
 	Seed     types.String `tfsdk:"seed"`
 	Wordlist types.String `tfsdk:"wordlist"`
 }
 
-func (d *TemplatedDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+// NewTemplatedDataSource returns a new templated ID data source.
+func NewTemplatedDataSource() datasource.DataSource {
+	return &TemplatedDataSource{}
+}
+
+// Metadata returns the data source type name.
+func (d *TemplatedDataSource) Metadata(
+	ctx context.Context,
+	req datasource.MetadataRequest,
+	resp *datasource.MetadataResponse,
+) {
 	resp.TypeName = req.ProviderTypeName + "_templated"
 }
 
-func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+// Schema defines the data source attributes.
+func (d *TemplatedDataSource) Schema(
+	ctx context.Context,
+	req datasource.SchemaRequest,
+	resp *datasource.SchemaResponse,
+) {
 	// Base attributes shared by most components
 	baseAttributes := map[string]schema.Attribute{
-		"seed": schema.StringAttribute{
+		attrSeed: schema.StringAttribute{
 			Optional:    true,
 			Description: "Seed for deterministic generation",
 		},
-		"group_size": schema.Int64Attribute{
+		attrGroupSize: schema.Int64Attribute{
 			Optional:    true,
 			Description: "Number of characters per group separated by dashes",
 		},
@@ -86,22 +98,20 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 
 	// Proquint schema (length + base)
 	proquintAttributes := map[string]schema.Attribute{
-		"length": schema.Int64Attribute{
+		attrLength: schema.Int64Attribute{
 			Optional:    true,
 			Description: "Length of the generated Proquint (default: 11)",
 		},
 	}
-	for k, v := range baseAttributes {
-		proquintAttributes[k] = v
-	}
+	maps.Copy(proquintAttributes, baseAttributes)
 
 	// Proquint canonical schema (only seed + group_size, seed required)
 	proquintCanonicalAttributes := map[string]schema.Attribute{
-		"seed": schema.StringAttribute{
+		attrSeed: schema.StringAttribute{
 			Required:            true,
 			MarkdownDescription: "Seed value (IPv4 address, hex string, or integer) for canonical encoding",
 		},
-		"group_size": schema.Int64Attribute{
+		attrGroupSize: schema.Int64Attribute{
 			Optional:    true,
 			Description: "Number of characters per group separated by dashes",
 		},
@@ -109,7 +119,7 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 
 	// NanoID schema (length + alphabet + base)
 	nanoidAttributes := map[string]schema.Attribute{
-		"length": schema.Int64Attribute{
+		attrLength: schema.Int64Attribute{
 			Optional:    true,
 			Description: "Length of the generated NanoID (default: 21)",
 		},
@@ -118,13 +128,11 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			MarkdownDescription: "Alphabet preset (`alphanumeric`, `numeric`, `readable`) or custom alphabet string. Default: `alphanumeric`",
 		},
 	}
-	for k, v := range baseAttributes {
-		nanoidAttributes[k] = v
-	}
+	maps.Copy(nanoidAttributes, baseAttributes)
 
 	// Random word schema (only seed + wordlist, no length or group_size)
 	randomWordAttributes := map[string]schema.Attribute{
-		"seed": schema.StringAttribute{
+		attrSeed: schema.StringAttribute{
 			Optional:    true,
 			Description: "Seed for deterministic word selection",
 		},
@@ -140,7 +148,7 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"Example: `{{ .proquint }}-{{ .nanoid }}`\n\n" +
 			templateFunctionsDocs,
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			attrID: schema.StringAttribute{
 				Description: "The generated templated ID.",
 				Computed:    true,
 			},
@@ -172,7 +180,12 @@ func (d *TemplatedDataSource) Schema(ctx context.Context, req datasource.SchemaR
 	}
 }
 
-func (d *TemplatedDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+// Configure is a no-op: the data source needs no provider configuration.
+func (d *TemplatedDataSource) Configure(
+	ctx context.Context,
+	req datasource.ConfigureRequest,
+	resp *datasource.ConfigureResponse,
+) {
 	// Provider configuration is not needed for this simple implementation
 }
 
@@ -214,7 +227,7 @@ func (d *TemplatedDataSource) Read(ctx context.Context, req datasource.ReadReque
 		var config NanoIDConfig
 		resp.Diagnostics.Append(data.NanoID.As(ctx, &config, basetypes.ObjectAsOptions{})...)
 		if !resp.Diagnostics.HasError() {
-			id, err := generateNanoID(config, &resp.Diagnostics)
+			id, err := generateNanoID(&config, &resp.Diagnostics)
 			if err != nil {
 				resp.Diagnostics.AddError("Failed to generate NanoID", err.Error())
 				return
@@ -257,7 +270,7 @@ func (d *TemplatedDataSource) Read(ctx context.Context, req datasource.ReadReque
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
-// Helper functions to generate IDs
+// Helper functions to generate IDs.
 func generateProquint(config ProquintConfig) string {
 	length := 11
 	if !config.Length.IsNull() {
@@ -270,10 +283,7 @@ func generateProquint(config ProquintConfig) string {
 		seed = &seedVal
 	}
 
-	byteLength := (length + 1) / 6 * 2
-	if byteLength < 2 {
-		byteLength = 2
-	}
+	byteLength := proquintByteLength(int64(length))
 
 	var bigSeed *big.Int
 	if seed != nil {
@@ -297,8 +307,8 @@ func generateProquint(config ProquintConfig) string {
 	return id
 }
 
-func generateNanoID(config NanoIDConfig, diags *diag.Diagnostics) (string, error) {
-	length := 21
+func generateNanoID(config *NanoIDConfig, diags *diag.Diagnostics) (string, error) {
+	length := defaultNanoIDLength
 	if !config.Length.IsNull() {
 		length = int(config.Length.ValueInt64())
 	}
@@ -396,8 +406,8 @@ func templateFuncs() template.FuncMap {
 		"lower": strings.ToLower,
 
 		// String manipulation
-		"replace": func(old, new, s string) string {
-			return strings.ReplaceAll(s, old, new)
+		"replace": func(from, to, s string) string {
+			return strings.ReplaceAll(s, from, to)
 		},
 		"prepend": func(prefix, s string) string {
 			return prefix + s
@@ -410,10 +420,7 @@ func templateFuncs() template.FuncMap {
 			if start < 0 || start >= len(runes) {
 				return ""
 			}
-			end := start + length
-			if end > len(runes) {
-				end = len(runes)
-			}
+			end := min(start+length, len(runes))
 			return string(runes[start:end])
 		},
 		"trim": strings.TrimSpace,

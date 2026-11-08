@@ -14,37 +14,44 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ datasource.DataSource = &NanoIDDataSource{}
 
-func NewNanoIDDataSource() datasource.DataSource {
-	return &NanoIDDataSource{}
-}
-
 // NanoIDDataSource defines the data source implementation.
 type NanoIDDataSource struct{}
 
 // NanoIDDataSourceModel describes the data source data model.
 type NanoIDDataSourceModel struct {
 	ID        types.String `tfsdk:"id"`
-	Length    types.Int64  `tfsdk:"length"`
 	Alphabet  types.String `tfsdk:"alphabet"`
-	GroupSize types.Int64  `tfsdk:"group_size"`
 	Seed      types.String `tfsdk:"seed"`
+	Length    types.Int64  `tfsdk:"length"`
+	GroupSize types.Int64  `tfsdk:"group_size"`
 }
 
-func (d *NanoIDDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+// NewNanoIDDataSource returns a new NanoID data source.
+func NewNanoIDDataSource() datasource.DataSource {
+	return &NanoIDDataSource{}
+}
+
+// Metadata returns the data source type name.
+func (d *NanoIDDataSource) Metadata(
+	ctx context.Context,
+	req datasource.MetadataRequest,
+	resp *datasource.MetadataResponse,
+) {
 	resp.TypeName = req.ProviderTypeName + "_nanoid"
 }
 
+// Schema defines the data source attributes.
 func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
 		MarkdownDescription: "Generates a NanoID identifier.\n\n" +
 			"**Security Notice:** When using `seed`, IDs become deterministic and predictable. " +
 			"Never use seeded IDs for security tokens, passwords, or cryptographic purposes.",
 		Attributes: map[string]schema.Attribute{
-			"id": schema.StringAttribute{
+			attrID: schema.StringAttribute{
 				Description: "The generated NanoID.",
 				Computed:    true,
 			},
-			"length": schema.Int64Attribute{
+			attrLength: schema.Int64Attribute{
 				Description: "The length of the generated ID. Defaults to 21.",
 				Optional:    true,
 			},
@@ -53,11 +60,11 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 					"'readable' (excludes 0/O, 1/l/I) or a custom string of characters.",
 				Optional: true,
 			},
-			"group_size": schema.Int64Attribute{
+			attrGroupSize: schema.Int64Attribute{
 				Description: "Number of characters per group, separated by dashes. If not set, no grouping is applied.",
 				Optional:    true,
 			},
-			"seed": schema.StringAttribute{
+			attrSeed: schema.StringAttribute{
 				MarkdownDescription: "Optional seed for deterministic ID generation. Behavior:\n\n" +
 					"- **Integer** - parsed and used as random seed\n" +
 					"- **Text string** - hashed deterministically and used as random seed\n" +
@@ -69,7 +76,12 @@ func (d *NanoIDDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	}
 }
 
-func (d *NanoIDDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+// Configure is a no-op: the data source needs no provider configuration.
+func (d *NanoIDDataSource) Configure(
+	ctx context.Context,
+	req datasource.ConfigureRequest,
+	resp *datasource.ConfigureResponse,
+) {
 	// Provider configuration is not needed for this implementation
 }
 
@@ -84,7 +96,7 @@ func (d *NanoIDDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	// Set defaults
-	length := int(21)
+	length := defaultNanoIDLength
 	if !data.Length.IsNull() {
 		length = int(data.Length.ValueInt64())
 	}
