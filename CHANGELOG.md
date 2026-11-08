@@ -14,6 +14,7 @@
 ### 📚 Documentation
 
 - Minor rewording on ids vs secrets
+- *(readme)* Document idgen_proquint_big and idgen_proquint_canonical
 
 ### 🎨 Styling
 
@@ -27,6 +28,7 @@
 - Update documented version
 - *(lint)* Adopt stricter golangci-lint config, fix pre-commit hook
 - *(release)* Prepare v1.1.0
+- *(changelog)* Describe the lint change without naming an unrelated project
 ## [1.0.1] - 2026-05-05
 
 ### 📚 Documentation
