@@ -481,3 +481,34 @@ func TestProquintLength95RepresentsSHA256WithUpperBoundary(t *testing.T) {
 		t.Errorf("expected %s, got %s", expected, result)
 	}
 }
+
+func TestSeededUint64(t *testing.T) {
+	mustBig := func(s string) *big.Int {
+		v, ok := new(big.Int).SetString(s, 10)
+		if !ok {
+			t.Fatalf("bad test value %q", s)
+		}
+		return v
+	}
+
+	// Values that fit in int64 must map exactly like the former int64 seed path did.
+	for _, v := range []int64{0, 1, -1, 42, -9223372036854775808, 9223372036854775807} {
+		if got, want := seededUint64(big.NewInt(v)), uint64(v); got != want {
+			t.Errorf("seededUint64(%d) = %d, want %d", v, got, want)
+		}
+	}
+
+	if got := seededUint64(mustBig("18446744073709551615")); got != 18446744073709551615 {
+		t.Errorf("seededUint64(max uint64) = %d, want max uint64", got)
+	}
+
+	// Values wider than 64 bits must not collapse onto their low 64 bits.
+	a := seededUint64(mustBig("18446744073709551617")) // 2^64 + 1
+	b := seededUint64(mustBig("36893488147419103233")) // 2^65 + 1
+	if a == b || a == 1 || b == 1 {
+		t.Errorf("seededUint64 truncates wide values: 2^64+1 -> %d, 2^65+1 -> %d", a, b)
+	}
+	if seededUint64(mustBig("-18446744073709551617")) == a {
+		t.Error("seededUint64 ignores the sign of wide values")
+	}
+}

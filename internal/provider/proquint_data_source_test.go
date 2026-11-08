@@ -309,3 +309,38 @@ data "idgen_proquint" "len95LowerBoundary" {
   seed = "0"
 }
 `
+
+// TestAccProquintDataSource_LargeDecimalSeedsUnchanged pins seeds outside the int64 range
+// to their v1.0.1 output. Such seeds fail int64 parsing and are hashed like text;
+// switching idgen_proquint to big-integer parsing would silently change these IDs.
+func TestAccProquintDataSource_LargeDecimalSeedsUnchanged(t *testing.T) {
+	resource.Test(t, resource.TestCase{
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		Steps: []resource.TestStep{
+			{
+				Config: `
+data "idgen_proquint" "above_int64" {
+  length = 23
+  seed   = "99999999999999999999"
+}
+
+data "idgen_proquint" "below_int64" {
+  length = 23
+  seed   = "-99999999999999999999"
+}
+
+data "idgen_proquint" "max_uint64" {
+  length = 23
+  seed   = "18446744073709551615"
+}
+`,
+				Check: resource.ComposeAggregateTestCheckFunc(
+					resource.TestCheckResourceAttr("data.idgen_proquint.above_int64", "id", "gisid-garib-fotut-bovav"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.below_int64", "id", "pokil-dihur-pavuf-bahod"),
+					resource.TestCheckResourceAttr("data.idgen_proquint.max_uint64", "id", "guzuv-givak-noguv-vokar"),
+				),
+			},
+		},
+	})
+}

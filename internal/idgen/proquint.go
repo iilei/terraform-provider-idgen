@@ -3,6 +3,7 @@ package idgen
 
 import (
 	"encoding/binary"
+	"hash/fnv"
 	"math/big"
 	mathrand "math/rand/v2"
 
@@ -53,12 +54,31 @@ func canonicalBigIntBytes(seed *big.Int) []byte {
 	return seed.Bytes()
 }
 
+// seededUint64 reduces a seed to the 64-bit state used by the PCG generator.
+//
+// Values that fit in int64 or uint64 map exactly as they did when seeds were int64,
+// so existing seeded IDs are unchanged. Wider values are hashed (FNV-1a over the
+// big-endian bytes, with the sign mixed in) instead of being truncated to their low
+// 64 bits, which would make e.g. 2^64+1 and 2^65+1 collide.
 func seededUint64(seed *big.Int) uint64 {
 	if seed == nil {
 		return 0
 	}
 
-	return uint64(seed.Int64())
+	if seed.IsInt64() {
+		return uint64(seed.Int64())
+	}
+
+	if seed.IsUint64() {
+		return seed.Uint64()
+	}
+
+	h := fnv.New64a()
+	if seed.Sign() < 0 {
+		h.Write([]byte{'-'})
+	}
+	h.Write(seed.Bytes())
+	return h.Sum64()
 }
 
 func generateRandomBytes(length int) []byte {

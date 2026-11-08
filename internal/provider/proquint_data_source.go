@@ -100,16 +100,20 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 	}
 
 	// Check if seed is provided
+	// Seed parsing intentionally stays on the int64 path (idgen.StringToSeed) so that
+	// existing configurations keep producing the same IDs as v1.0.x. Large values are
+	// handled by idgen_proquint_big instead.
 	var seed *big.Int
 	var directEncode bool
 	if !data.Seed.IsNull() {
-		seedVal, shouldDirectEncode := idgen.StringToSeedBigInt(data.Seed.ValueString())
-		seed = seedVal
+		seedVal, shouldDirectEncode := stringToSeed(data.Seed.ValueString())
+		seed = big.NewInt(seedVal)
 		directEncode = shouldDirectEncode
 
 		// Warn if using direct encoding with non-canonical length
 		if shouldDirectEncode {
-			canonicalLength := int64(11)
+			// Direct encoding only applies to uint32-range seeds, which are canonically 11 characters.
+			const canonicalLength = int64(11)
 
 			if length != canonicalLength {
 				resp.Diagnostics.AddWarning(
@@ -120,10 +124,10 @@ func (d *ProquintDataSource) Read(ctx context.Context, req datasource.ReadReques
 							"Consider using idgen_proquint_canonical for canonical encoding without specifying length, "+
 							"or adjust length to %d for the standard canonical output.",
 						data.Seed.ValueString(),
-						11,
+						canonicalLength,
 						length,
-						map[bool]string{true: "truncated", false: "zero-padded"}[length < 11],
-						11,
+						map[bool]string{true: "truncated", false: "zero-padded"}[length < canonicalLength],
+						canonicalLength,
 					),
 				)
 			}

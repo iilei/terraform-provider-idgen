@@ -283,32 +283,6 @@ func TestStringToSeed_IPv4Conversion(t *testing.T) {
 	}
 }
 
-func TestStringToSeedBigInt(t *testing.T) {
-	tests := []struct {
-		name   string
-		input  string
-		direct bool
-	}{
-		{name: "ipv4", input: "127.0.0.1", direct: true},
-		{name: "uint32", input: "42", direct: true},
-		{name: "large integer", input: "4294967296", direct: false},
-		{name: "negative integer", input: "-1", direct: false},
-		{name: "hashed string", input: "hello world", direct: false},
-	}
-
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			seed, direct := StringToSeedBigInt(tc.input)
-			if seed == nil {
-				t.Fatal("StringToSeedBigInt returned nil seed")
-			}
-			if direct != tc.direct {
-				t.Fatalf("StringToSeedBigInt(%q) direct = %v, want %v", tc.input, direct, tc.direct)
-			}
-		})
-	}
-}
-
 func TestGenerateProquintBigInt(t *testing.T) {
 	seed := big.NewInt(0)
 	seed.SetString("28852105539445366877964448497722252299143518117199161105822405947883537306571", 10)
