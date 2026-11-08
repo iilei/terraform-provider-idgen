@@ -25,7 +25,8 @@
 - Update dependencies
 - Bump pre-commit hooks
 - Update documented version
-- *(lint)* Adopt canned-schedules golangci config, fix pre-commit hook
+- *(lint)* Adopt stricter golangci-lint config, fix pre-commit hook
+- *(release)* Prepare v1.1.0
 ## [1.0.1] - 2026-05-05
 
 ### 📚 Documentation
