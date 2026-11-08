@@ -1,5 +1,5 @@
 terraform-provider-idgen
-=======================
+========================
 
 .. image:: https://codecov.io/github/iilei/terraform-provider-idgen/graph/badge.svg?token=CZ7ZIF2FY9
  :target: https://codecov.io/github/iilei/terraform-provider-idgen
@@ -23,6 +23,7 @@ Key Features
 ------------
 
 - **Proquint and NanoID generation** (`Proquint <https://arxiv.org/html/0901.4016>`_, `NanoID <https://github.com/ai/nanoid>`_)
+- **Canonical and large-value encoding** of IPv4 addresses, integers and SHA-256 digests as proquints
 - **Templating support** to embed IDs into structured naming conventions
 - **Deterministic seeding** for reproducible environments or test setups
 
@@ -161,7 +162,8 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
       }
 
 **Text Strings (Seeded Random Generation)**
-   Any string (or large integer) is hashed to create a seed for random generation:
+   Any string (or integer outside the uint32 range) is hashed to create a seed for random generation.
+   To encode a large value itself rather than use it as a seed, see `Large Values and SHA-256`_.
 
    .. code-block:: hcl
 
@@ -187,6 +189,43 @@ The ``seed`` parameter provides **deterministic ID generation** with smart behav
 
 .. note::
    proquint seeds are treated as numbers or IPv4 addresses when possible for canonical behavior. For that reason, if high entropy is desired, add a non-numeric component to the seed string to force random generation.
+
+Canonical Encoding
+~~~~~~~~~~~~~~~~~~
+
+``idgen_proquint_canonical`` encodes an IPv4 address or unsigned integer as specified, with no ``length`` to choose:
+values up to 4,294,967,295 become 11 characters, larger uint64 values 23 characters.
+Hex input (``0x7f000001``) is accepted as well.
+
+.. code-block:: hcl
+
+   data "idgen_proquint_canonical" "localhost" {
+     seed = "127.0.0.1"  # => lusab-babad
+   }
+
+   data "idgen_proquint_canonical" "uint64" {
+     seed = "4294967296"  # => babab-babad-babab-babab
+   }
+
+Large Values and SHA-256
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+``idgen_proquint_big`` directly encodes unsigned integers of any size, such as SHA-256 digests.
+A 32-byte digest takes ``length = 95`` (16 words).
+
+.. code-block:: hcl
+
+   data "idgen_proquint_big" "digest" {
+     length = 95
+     seed   = sha256("abc")
+   }
+   # => ronum-dipuz-musad-suzop-hajad-hagiv-jukov-famog-rabag-kakog-nimil-lopis-ribib-zutod-zamab-dikot
+
+- ``seed`` is read as **hex** by default, with or without ``0x``, which matches the output of ``sha256()``.
+  Set ``seed_format = "decimal"`` for decimal input. The format is never guessed, because a digit-only string is valid in both (``"10"`` is 16 as hex).
+- Negative values are rejected.
+- If ``length`` is too short for the value, the most significant bytes are dropped and a warning is shown,
+  so different values can then produce the same ID.
 
 Notes
 ~~~~~
