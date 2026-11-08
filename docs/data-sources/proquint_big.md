@@ -3,12 +3,15 @@
 page_title: "idgen_proquint_big Data Source - idgen"
 subcategory: ""
 description: |-
-  Generates a Proquint ID from large integer seeds, including 256-bit values such as SHA-256 digests represented in hexadecimal.
+  Encodes a large unsigned integer, such as a SHA-256 digest, directly as a Proquint ID.
+  The seed is encoded as big-endian bytes, zero-padded or truncated (keeping the least significant bytes) to fit length.
 ---
 
 # idgen_proquint_big (Data Source)
 
-Generates a Proquint ID from large integer seeds, including 256-bit values such as SHA-256 digests represented in hexadecimal.
+Encodes a large unsigned integer, such as a SHA-256 digest, directly as a Proquint ID.
+
+The seed is encoded as big-endian bytes, zero-padded or truncated (keeping the least significant bytes) to fit `length`.
 
 
 
@@ -17,14 +20,17 @@ Generates a Proquint ID from large integer seeds, including 256-bit values such 
 
 ### Required
 
-- `length` (Number) The output length in characters. For SHA-256-sized values (32 bytes), use `95` characters.
-- `seed` (String) The seed value as a string. Supports:
+- `length` (Number) The output length in characters. For SHA-256-sized values (32 bytes), use `95` characters. If the seed needs more bytes than `length` provides, the most significant bytes are dropped and a warning is emitted.
+- `seed` (String) The unsigned integer to encode, as a string. How it is read depends on `seed_format`:
 
-- decimal integers (e.g., `115792089237316195423570985008687907853269984665640564039457584007913129639935`)
-- hexadecimal integers with `0x` prefix (e.g., `0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`)
-- hexadecimal integers without prefix (e.g., `FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF`)
+- `hex` (default): hexadecimal digits, with or without a `0x` prefix, e.g. the output of Terraform's `sha256()` (`ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad`)
+- `decimal`: decimal digits, e.g. `115792089237316195423570985008687907853269984665640564039457584007913129639935`
 
-This is useful for encoding SHA-256 values as deterministic proquints.
+Negative values are rejected.
+
+### Optional
+
+- `seed_format` (String) How `seed` is interpreted: `hex` (default) or `decimal`. A string of only the digits 0-9 is valid in both formats with different values, so the format is never guessed.
 
 ### Read-Only
 

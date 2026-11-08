@@ -1,8 +1,9 @@
 # proquint-big-sha256
 
-This example shows how to encode a SHA-256-sized value using `idgen_proquint_big`.
+This example shows how to encode a SHA-256 digest using `idgen_proquint_big`.
 
-It demonstrates that hexadecimal seeds with and without `0x` are treated identically.
+It demonstrates that the output of `sha256()`, a `0x`-prefixed hex literal and the
+same value given with `seed_format = "decimal"` all encode identically.
 
 ## Usage
 
@@ -13,6 +14,6 @@ terraform apply
 
 ## Expected behavior
 
-Both outputs are equal and should resolve to:
+All three outputs are equal and should resolve to:
 
-`zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz-zuzuz`
+`ronum-dipuz-musad-suzop-hajad-hagiv-jukov-famog-rabag-kakog-nimil-lopis-ribib-zutod-zamab-dikot`

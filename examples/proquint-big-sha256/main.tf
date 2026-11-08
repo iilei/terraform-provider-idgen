@@ -7,22 +7,34 @@ terraform {
   }
 }
 
-# SHA-256 max value (32 bytes, all bits set)
-# Both seeds below are equivalent hexadecimal representations.
-data "idgen_proquint_big" "sha256_max_without_prefix" {
+# Encode a SHA-256 digest as a 95-character proquint (32 bytes, 16 words).
+# sha256() returns lowercase hex without a prefix, which is the default seed_format.
+data "idgen_proquint_big" "sha256_abc" {
   length = 95
-  seed   = "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  seed   = sha256("abc")
 }
 
-data "idgen_proquint_big" "sha256_max_with_prefix" {
+# The same digest written as a 0x-prefixed hex literal gives the same ID.
+data "idgen_proquint_big" "sha256_abc_prefixed" {
   length = 95
-  seed   = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  seed   = "0xba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
 }
 
-output "sha256_max_without_prefix" {
-  value = data.idgen_proquint_big.sha256_max_without_prefix.id
+# Decimal input must be requested explicitly, because digit-only strings are valid hex too.
+data "idgen_proquint_big" "sha256_abc_decimal" {
+  length      = 95
+  seed_format = "decimal"
+  seed        = "84342368487090800366523834928142263660104883695016514377462985829716817089965"
 }
 
-output "sha256_max_with_prefix" {
-  value = data.idgen_proquint_big.sha256_max_with_prefix.id
+output "sha256_abc" {
+  value = data.idgen_proquint_big.sha256_abc.id
+}
+
+output "sha256_abc_prefixed" {
+  value = data.idgen_proquint_big.sha256_abc_prefixed.id
+}
+
+output "sha256_abc_decimal" {
+  value = data.idgen_proquint_big.sha256_abc_decimal.id
 }

@@ -103,17 +103,19 @@ output "docs_complex_id" {
 Use `idgen_proquint_big` when encoding values larger than uint64, such as SHA-256 digests.
 
 ```terraform
-data "idgen_proquint_big" "sha256_upper_bound" {
+data "idgen_proquint_big" "sha256_abc" {
   length = 95
-  seed   = "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+  seed   = sha256("abc")
 }
 
-output "sha256_upper_bound" {
-  value = data.idgen_proquint_big.sha256_upper_bound.id
+output "sha256_abc" {
+  value = data.idgen_proquint_big.sha256_abc.id
 }
 ```
 
-You can provide the same hex seed with or without `0x`; both forms are treated identically.
+Seeds are read as hexadecimal by default (with or without `0x`), which matches the output of `sha256()`.
+Set `seed_format = "decimal"` for decimal input; the format is never guessed, because a digit-only
+string is valid in both.
 
 ## Configuration
 
